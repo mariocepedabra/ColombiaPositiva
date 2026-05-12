@@ -35,11 +35,11 @@ export default function Header() {
           <div className="flex-1 border-t-2 border-tinta" />
         </div>
 
-        <Link href="/" className="group block">
-          <h1 className="font-heading font-900 text-4xl md:text-6xl text-tinta tracking-tight leading-none group-hover:text-verde transition-colors duration-300">
+        <Link href="/" className="block">
+          <h1 className="font-heading font-900 text-4xl md:text-6xl text-verde tracking-tight leading-none hover:text-[#EFBE05] transition-colors duration-300">
             Colombia Positiva
           </h1>
-          <p className="font-heading italic text-gris-600 text-sm md:text-base mt-1 tracking-wide">
+          <p className="font-heading italic text-verde text-sm md:text-base mt-1 tracking-wide hover:text-[#EFBE05] transition-colors duration-300">
             El periódico de las buenas noticias de Colombia
           </p>
         </Link>
