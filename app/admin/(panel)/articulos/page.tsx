@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAllArticlesAdmin } from '@/lib/articles'
 import { categories } from '@/lib/data'
 import Link from 'next/link'
-import { deleteArticle, togglePublish } from '../actions'
+import { deleteArticle, togglePublish } from '../../actions'
 
 export default async function ArticulosPage() {
   const supabase = await createClient()

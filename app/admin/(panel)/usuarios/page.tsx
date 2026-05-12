@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAllProfiles } from '@/lib/articles'
 import { redirect } from 'next/navigation'
-import { updateUserRole } from '../actions'
+import { updateUserRole } from '../../actions'
 
 export default async function UsuariosPage() {
   const supabase = await createClient()
