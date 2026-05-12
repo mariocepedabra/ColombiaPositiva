@@ -1,20 +1,33 @@
-import { Metadata } from "next";
-import BreakingTicker from "@/components/BreakingTicker";
-import HeroSection from "@/components/HeroSection";
-import CategorySection from "@/components/CategorySection";
-import { categories, getArticlesByCategory } from "@/lib/data";
+import { Metadata } from 'next'
+import BreakingTicker from '@/components/BreakingTicker'
+import HeroSection from '@/components/HeroSection'
+import CategorySection from '@/components/CategorySection'
+import { categories, breakingNewsFallback } from '@/lib/data'
+import { getRecentArticles, getArticlesByCategory } from '@/lib/articles'
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: "Colombia Positiva — El periódico de las buenas noticias",
-};
+  title: 'Colombia Positiva — El periódico de las buenas noticias',
+}
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [recentArticles, ...categoryArticles] = await Promise.all([
+    getRecentArticles(4),
+    ...categories.map((cat) => getArticlesByCategory(cat.slug, 4)),
+  ])
+
+  const tickerItems =
+    recentArticles.length > 0
+      ? recentArticles.map((a) => a.title)
+      : breakingNewsFallback
+
   return (
     <>
-      <BreakingTicker />
-      <HeroSection />
+      <BreakingTicker items={tickerItems} />
+      <HeroSection articles={recentArticles} />
 
-      {/* Ornamental divider */}
+      {/* Divisor ornamental */}
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center gap-4 py-2">
           <div className="flex-1 border-t border-gris-200" />
@@ -24,7 +37,7 @@ export default function HomePage() {
       </div>
 
       {categories.map((category, idx) => {
-        const articles = getArticlesByCategory(category.slug);
+        const articles = categoryArticles[idx] ?? []
         return (
           <div key={category.slug}>
             <CategorySection category={category} articles={articles} />
@@ -34,8 +47,8 @@ export default function HomePage() {
               </div>
             )}
           </div>
-        );
+        )
       })}
     </>
-  );
+  )
 }

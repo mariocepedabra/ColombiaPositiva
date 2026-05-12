@@ -1,18 +1,18 @@
-import Link from "next/link";
-import { categories } from "@/lib/data";
-import MobileMenu from "./MobileMenu";
+import Link from 'next/link'
+import { categories } from '@/lib/data'
+import MobileMenu from './MobileMenu'
 
 export default function Header() {
-  const today = new Date().toLocaleDateString("es-CO", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const today = new Date().toLocaleDateString('es-CO', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 
   return (
     <header className="bg-papel border-b border-gris-300">
-      {/* Top utility bar */}
+      {/* Barra utilitaria superior */}
       <div className="border-b border-gris-200 bg-gris-100">
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs text-gris-600 font-sans">
           <span className="capitalize">{today}</span>
@@ -28,7 +28,7 @@ export default function Header() {
 
       {/* Masthead */}
       <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col items-center text-center relative">
-        {/* Ornamental top line */}
+        {/* Línea ornamental superior */}
         <div className="w-full flex items-center gap-3 mb-4">
           <div className="flex-1 border-t-2 border-tinta" />
           <span className="text-gris-400 text-xs tracking-[0.3em] uppercase font-sans">Est. 2026</span>
@@ -44,7 +44,7 @@ export default function Header() {
           </p>
         </Link>
 
-        {/* Ornamental bottom line */}
+        {/* Línea ornamental inferior */}
         <div className="w-full flex items-center gap-3 mt-4">
           <div className="flex-1 border-t border-gris-300" />
           <span className="text-verde text-xs tracking-[0.2em] uppercase font-sans font-600">
@@ -53,7 +53,7 @@ export default function Header() {
           <div className="flex-1 border-t border-gris-300" />
         </div>
 
-        {/* Search — top right on desktop */}
+        {/* Búsqueda en desktop */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-2">
           <div className="relative">
             <input
@@ -70,31 +70,30 @@ export default function Header() {
         <MobileMenu />
       </div>
 
-      {/* Category navigation */}
+      {/* Navegación de categorías */}
       <nav className="border-t-2 border-b border-tinta bg-tinta">
         <div className="max-w-7xl mx-auto px-4">
           <ul className="hidden md:flex items-center justify-center">
             <li>
-              <Link
-                href="/"
-                className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all"
-              >
+              <Link href="/" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
                 Portada
               </Link>
             </li>
             {categories.map((cat) => (
               <li key={cat.slug}>
-                <Link
-                  href={`/categoria/${cat.slug}`}
-                  className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all"
-                >
+                <Link href={`/categoria/${cat.slug}`} className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
                   {cat.name}
                 </Link>
               </li>
             ))}
+            <li>
+              <Link href="/nota-positiva" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-[#EFBE05] hover:text-white hover:bg-verde transition-all">
+                ✦ Nota Positiva
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>
     </header>
-  );
+  )
 }

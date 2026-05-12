@@ -1,9 +1,11 @@
-"use client";
+'use client'
 
-import { breakingNews } from "@/lib/data";
+type Props = {
+  items: string[]
+}
 
-export default function BreakingTicker() {
-  const items = [...breakingNews, ...breakingNews];
+export default function BreakingTicker({ items }: Props) {
+  const doubled = [...items, ...items]
 
   return (
     <div className="bg-verde border-b border-verde-oscuro overflow-hidden">
@@ -15,7 +17,7 @@ export default function BreakingTicker() {
         </div>
         <div className="overflow-hidden flex-1">
           <div className="ticker-track py-2">
-            {items.map((item, idx) => (
+            {doubled.map((item, idx) => (
               <span key={idx} className="text-white font-sans text-xs px-8 whitespace-nowrap">
                 {item}
                 <span className="ml-8 text-white/40">◆</span>
@@ -25,5 +27,5 @@ export default function BreakingTicker() {
         </div>
       </div>
     </div>
-  );
+  )
 }

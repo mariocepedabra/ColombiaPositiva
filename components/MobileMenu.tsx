@@ -1,17 +1,17 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import Link from "next/link";
-import { categories } from "@/lib/data";
+import { useState } from 'react'
+import Link from 'next/link'
+import { categories } from '@/lib/data'
 
 export default function MobileMenu() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="md:hidden absolute right-4 top-1/2 -translate-y-1/2">
       <button
         onClick={() => setOpen(!open)}
-        aria-label={open ? "Cerrar menú" : "Abrir menú"}
+        aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
         className="p-2 hover:bg-gris-100 transition-colors"
       >
         {open ? (
@@ -41,30 +41,26 @@ export default function MobileMenu() {
             </div>
             <ul className="flex-1 overflow-y-auto">
               <li className="border-b border-gris-200">
-                <Link
-                  href="/"
-                  onClick={() => setOpen(false)}
-                  className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase text-tinta hover:bg-gris-100"
-                >
+                <Link href="/" onClick={() => setOpen(false)} className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase text-tinta hover:bg-gris-100">
                   Portada
                 </Link>
               </li>
               {categories.map((cat) => (
                 <li key={cat.slug} className="border-b border-gris-200">
-                  <Link
-                    href={`/categoria/${cat.slug}`}
-                    onClick={() => setOpen(false)}
-                    className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase hover:bg-gris-100"
-                    style={{ color: cat.color }}
-                  >
+                  <Link href={`/categoria/${cat.slug}`} onClick={() => setOpen(false)} className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase hover:bg-gris-100" style={{ color: cat.color }}>
                     {cat.name}
                   </Link>
                 </li>
               ))}
+              <li className="border-b border-gris-200">
+                <Link href="/nota-positiva" onClick={() => setOpen(false)} className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase hover:bg-gris-100" style={{ color: '#006039' }}>
+                  ✦ Nota Positiva
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>
       )}
     </div>
-  );
+  )
 }

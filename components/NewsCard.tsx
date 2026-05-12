@@ -1,23 +1,23 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Article, categories, formatDateShort } from "@/lib/data";
+import Link from 'next/link'
+import Image from 'next/image'
+import { Article, categories, formatDateShort } from '@/lib/data'
 
 type Props = {
-  article: Article;
-  variant?: "vertical" | "horizontal" | "minimal";
-  showImage?: boolean;
-};
+  article: Article
+  variant?: 'vertical' | 'horizontal' | 'minimal'
+  showImage?: boolean
+}
 
-export default function NewsCard({ article, variant = "vertical", showImage = true }: Props) {
-  const category = categories.find((c) => c.slug === article.category);
+export default function NewsCard({ article, variant = 'vertical', showImage = true }: Props) {
+  const category = categories.find((c) => c.slug === article.category)
 
-  if (variant === "horizontal") {
+  if (variant === 'horizontal') {
     return (
       <article className="group flex gap-4 py-4 border-b border-gris-200 last:border-0">
         {showImage && (
           <Link href={`/articulo/${article.slug}`} className="relative flex-shrink-0 overflow-hidden w-28 h-20">
             <Image
-              src={`https://picsum.photos/seed/${article.imageId}/400/280`}
+              src={article.imageUrl}
               alt={article.title}
               fill
               sizes="112px"
@@ -27,10 +27,7 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
         )}
         <div className="flex-1 min-w-0">
           {category && (
-            <span
-              className="text-xs font-sans font-700 uppercase tracking-widest"
-              style={{ color: category.color }}
-            >
+            <span className="text-xs font-sans font-700 uppercase tracking-widest" style={{ color: category.color }}>
               {category.name}
             </span>
           )}
@@ -44,10 +41,10 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
           </p>
         </div>
       </article>
-    );
+    )
   }
 
-  if (variant === "minimal") {
+  if (variant === 'minimal') {
     return (
       <article className="group py-3 border-b border-gris-200 last:border-0">
         {category && (
@@ -62,7 +59,7 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
         </Link>
         <p className="text-xs text-gris-400 font-sans mt-1">{formatDateShort(article.publishedAt)}</p>
       </article>
-    );
+    )
   }
 
   // vertical (default)
@@ -71,7 +68,7 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
       {showImage && (
         <Link href={`/articulo/${article.slug}`} className="relative overflow-hidden block" style={{ height: 200 }}>
           <Image
-            src={`https://picsum.photos/seed/${article.imageId}/800/530`}
+            src={article.imageUrl}
             alt={article.title}
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
@@ -81,10 +78,7 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
       )}
       <div className="flex-1 pt-3 flex flex-col">
         {category && (
-          <span
-            className="text-xs font-sans font-700 uppercase tracking-widest mb-1.5"
-            style={{ color: category.color }}
-          >
+          <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1.5" style={{ color: category.color }}>
             {category.name}
           </span>
         )}
@@ -104,5 +98,5 @@ export default function NewsCard({ article, variant = "vertical", showImage = tr
         </div>
       </div>
     </article>
-  );
+  )
 }
