@@ -32,16 +32,13 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Rutas públicas del admin (login y registro no requieren sesión)
+  // NO redirigimos aunque el usuario esté autenticado — evita loops si el perfil falla
   const publicAdminPaths = ['/admin/login', '/admin/registro']
   if (publicAdminPaths.some((p) => pathname.startsWith(p))) {
-    // Si ya está autenticado, redirigir al panel
-    if (user) {
-      return NextResponse.redirect(new URL('/admin', request.url))
-    }
     return supabaseResponse
   }
 
-  // Proteger todas las rutas /admin/*
+  // Proteger todas las rutas /admin/* que NO sean login/registro
   if (pathname.startsWith('/admin')) {
     if (!user) {
       return NextResponse.redirect(new URL('/admin/login', request.url))

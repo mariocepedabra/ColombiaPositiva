@@ -19,7 +19,8 @@ export default async function PanelLayout({
     .single()
 
   if (!profile || profile.role === 'lector') {
-    redirect('/admin/login?error=sin-permisos')
+    // Redirigir al home (NO a /admin/login) para evitar loop con el middleware
+    redirect('/?acceso=denegado')
   }
 
   return (
