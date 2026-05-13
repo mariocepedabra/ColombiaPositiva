@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { saveArticle } from '@/app/admin/actions'
 import { categories } from '@/lib/data'
 import { DbArticle } from '@/lib/articles'
@@ -24,6 +25,7 @@ function generateSlug(title: string): string {
 }
 
 export default function ArticleForm({ article, authorName }: Props) {
+  const router = useRouter()
   const [title, setTitle] = useState(article?.title ?? '')
   const [slug, setSlug] = useState(article?.slug ?? '')
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? '')
@@ -65,7 +67,11 @@ export default function ArticleForm({ article, authorName }: Props) {
 
     startTransition(async () => {
       const result = await saveArticle(formData)
-      if (result?.error) setError(result.error)
+      if (result?.error) {
+        setError(result.error)
+      } else if (result?.redirect) {
+        router.push(result.redirect)
+      }
     })
   }
 

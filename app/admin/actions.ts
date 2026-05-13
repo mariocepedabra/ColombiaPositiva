@@ -114,23 +114,23 @@ export async function saveArticle(formData: FormData) {
   revalidatePath(`/categoria/${category_slug}`)
   if (id) revalidatePath(`/articulo/${slug}`)
 
-  redirect('/admin/articulos')
+  return { redirect: '/admin/articulos' }
 }
 
-export async function deleteArticle(id: string, categorySlug: string, slug: string): Promise<void> {
+export async function deleteArticle(id: string, categorySlug: string, slug: string) {
   const supabase = await createClient()
   const db = safeAdminClient() ?? supabase
   const { error } = await db.from('articles').delete().eq('id', id)
   if (error) {
     console.error('[deleteArticle]', error.message)
-    return
+    return { error: error.message }
   }
 
   revalidatePath('/')
   revalidatePath(`/categoria/${categorySlug}`)
   revalidatePath(`/articulo/${slug}`)
 
-  redirect('/admin/articulos')
+  return { redirect: '/admin/articulos' }
 }
 
 export async function togglePublish(id: string, currentState: boolean): Promise<void> {

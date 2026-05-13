@@ -16,8 +16,12 @@ export default function ArticleRowActions({ articleId, slug, categorySlug, isPub
 
   async function handleDelete() {
     if (!confirm('¿Eliminar este artículo? Esta acción no se puede deshacer.')) return
-    await deleteArticle(articleId, categorySlug, slug)
-    router.refresh()
+    const result = await deleteArticle(articleId, categorySlug, slug)
+    if (result?.redirect) {
+      router.push(result.redirect)
+    } else {
+      router.refresh()
+    }
   }
 
   return (
