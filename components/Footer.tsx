@@ -90,6 +90,7 @@ export default function Footer() {
             <Link href="#" className="hover:text-white transition-colors">Privacidad</Link>
             <Link href="#" className="hover:text-white transition-colors">Términos</Link>
             <Link href="#" className="hover:text-white transition-colors">Contacto</Link>
+            <Link href="/admin" className="hover:text-white transition-colors">Panel</Link>
           </div>
         </div>
       </div>
