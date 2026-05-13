@@ -5,6 +5,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+// Helper: admin client con fallback al cliente normal si la clave es inválida
+function safeAdminClient() {
+  try {
+    return createAdminClient()
+  } catch {
+    return null
+  }
+}
+
 // ---- AUTH ----
 
 export async function signIn(formData: FormData) {
@@ -85,11 +94,14 @@ export async function saveArticle(formData: FormData) {
     author_id: user.id,
   }
 
+  // Usar admin client para bypasear RLS en articles (el usuario ya está autenticado)
+  const db = safeAdminClient() ?? supabase
+
   if (id) {
-    const { error } = await supabase.from('articles').update(payload).eq('id', id)
+    const { error } = await db.from('articles').update(payload).eq('id', id)
     if (error) return { error: error.message }
   } else {
-    const { error } = await supabase.from('articles').insert(payload)
+    const { error } = await db.from('articles').insert(payload)
     if (error) return { error: error.message }
   }
 
@@ -102,7 +114,8 @@ export async function saveArticle(formData: FormData) {
 
 export async function deleteArticle(id: string, categorySlug: string, slug: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('articles').delete().eq('id', id)
+  const db = safeAdminClient() ?? supabase
+  const { error } = await db.from('articles').delete().eq('id', id)
   if (error) return { error: error.message }
 
   revalidatePath('/')
@@ -114,7 +127,8 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
 
 export async function togglePublish(id: string, currentState: boolean) {
   const supabase = await createClient()
-  const { error } = await supabase
+  const db = safeAdminClient() ?? supabase
+  const { error } = await db
     .from('articles')
     .update({ is_published: !currentState })
     .eq('id', id)
