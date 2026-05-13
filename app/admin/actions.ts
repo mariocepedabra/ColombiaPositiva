@@ -131,13 +131,15 @@ export async function updateUserRole(userId: string, role: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
-  // Verificar que quien ejecuta es admin
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-  if (profile?.role !== 'admin') return { error: 'Sin permisos' }
+  // Verificar rol via RPC (bypasea RLS) con fallback a app_metadata
+  let myRole = (user.app_metadata as Record<string, string>)?.role ?? 'lector'
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      myRole = (rpcData[0] as { role: string }).role || myRole
+    }
+  } catch { /* usar app_metadata */ }
+  if (myRole !== 'admin') return { error: 'Sin permisos' }
 
   const adminClient = createAdminClient()
   const { error } = await adminClient

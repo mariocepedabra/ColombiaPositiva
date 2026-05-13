@@ -7,10 +7,17 @@ import { deleteArticle, togglePublish } from '../../actions'
 export default async function ArticulosPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+
+  let myRole = (user!.app_metadata as Record<string, string>)?.role ?? 'lector'
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      myRole = (rpcData[0] as { role: string }).role || myRole
+    }
+  } catch { /* usar app_metadata */ }
 
   const allArticles = await getAllArticlesAdmin()
-  const articles = profile?.role === 'admin'
+  const articles = myRole === 'admin'
     ? allArticles
     : allArticles.filter((a) => a.author_id === user!.id)
 

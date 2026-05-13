@@ -6,9 +6,17 @@ import { updateUserRole } from '../../actions'
 export default async function UsuariosPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: myProfile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
 
-  if (myProfile?.role !== 'admin') redirect('/admin')
+  // Verificar rol via RPC (bypasea RLS)
+  let myRole = (user!.app_metadata as Record<string, string>)?.role ?? 'lector'
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      myRole = (rpcData[0] as { role: string }).role || myRole
+    }
+  } catch { /* usar app_metadata */ }
+
+  if (myRole !== 'admin') redirect('/admin')
 
   const profiles = await getAllProfiles()
 

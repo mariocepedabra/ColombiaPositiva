@@ -5,7 +5,13 @@ import Link from 'next/link'
 export default async function NuevoArticuloPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user!.id).single()
+  let fullName = 'Redacción Colombia Positiva'
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      fullName = (rpcData[0] as { full_name: string }).full_name || fullName
+    }
+  } catch { /* usar valor por defecto */ }
 
   return (
     <div>
@@ -17,7 +23,7 @@ export default async function NuevoArticuloPage() {
         <h1 className="font-heading font-700 text-2xl text-tinta">Nueva nota</h1>
       </div>
 
-      <ArticleForm authorName={profile?.full_name || 'Redacción Colombia Positiva'} />
+      <ArticleForm authorName={fullName} />
     </div>
   )
 }
