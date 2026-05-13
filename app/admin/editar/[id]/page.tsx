@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getArticleById } from '@/lib/articles'
 import ArticleForm from '@/components/admin/ArticleForm'
@@ -8,13 +8,25 @@ export default async function EditarArticuloPage(props: { params: Promise<{ id: 
   const { id } = await props.params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user!.id).single()
+  if (!user) redirect('/admin/login')
+
+  // Leer perfil via RPC (bypasea RLS) con fallback a app_metadata
+  let profileRole = (user.app_metadata as Record<string, string> | null)?.role ?? 'lector'
+  let profileFullName = ''
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      const p = rpcData[0] as { role: string; full_name: string }
+      profileRole = p.role || profileRole
+      profileFullName = p.full_name || ''
+    }
+  } catch { /* usar app_metadata */ }
 
   const article = await getArticleById(id)
   if (!article) notFound()
 
   // Columnistas solo pueden editar sus propios artículos
-  if (profile?.role === 'columnista' && article.author_id !== user!.id) {
+  if (profileRole === 'columnista' && article.author_id !== user.id) {
     notFound()
   }
 
@@ -30,7 +42,7 @@ export default async function EditarArticuloPage(props: { params: Promise<{ id: 
 
       <ArticleForm
         article={article}
-        authorName={profile?.full_name || 'Redacción Colombia Positiva'}
+        authorName={profileFullName || 'Redacción Colombia Positiva'}
       />
     </div>
   )
