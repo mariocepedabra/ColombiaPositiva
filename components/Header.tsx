@@ -1,14 +1,41 @@
 import Link from 'next/link'
 import { categories } from '@/lib/data'
 import MobileMenu from './MobileMenu'
+import UserMenu from './UserMenu'
+import { createClient } from '@/lib/supabase/server'
 
-export default function Header() {
+export default async function Header() {
   const today = new Date().toLocaleDateString('es-CO', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   })
+
+  // Consultar sesión activa
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let userDisplay: { name: string; role: string } | null = null
+
+  if (user) {
+    // Intentar obtener nombre y rol del perfil via RPC
+    let name = user.email?.split('@')[0] ?? 'Usuario'
+    let role = (user.app_metadata as Record<string, string> | null)?.role ?? 'lector'
+
+    try {
+      const { data: rpcData } = await supabase.rpc('get_my_profile')
+      if (Array.isArray(rpcData) && rpcData.length > 0) {
+        const profile = rpcData[0] as { role: string; full_name: string }
+        if (profile.full_name) name = profile.full_name
+        if (profile.role) role = profile.role
+      }
+    } catch {
+      // Usar app_metadata como fallback
+    }
+
+    userDisplay = { name, role }
+  }
 
   return (
     <header className="bg-papel border-b border-gris-300">
@@ -22,6 +49,12 @@ export default function Header() {
             <a href="#" className="hover:text-verde transition-colors">Edición impresa</a>
             <span className="text-gris-300">|</span>
             <a href="#" className="hover:text-verde transition-colors">Contacto</a>
+            {userDisplay && (
+              <>
+                <span className="text-gris-300">|</span>
+                <UserMenu name={userDisplay.name} role={userDisplay.role} />
+              </>
+            )}
           </div>
         </div>
       </div>
