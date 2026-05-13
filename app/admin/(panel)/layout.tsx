@@ -13,13 +13,34 @@ export default async function PanelLayout({
 
   if (!user) redirect('/admin/login')
 
-  // Usar admin client para evitar problemas de RLS en server components
+  // Intentar con admin client (bypasea RLS)
   const adminClient = createAdminClient()
-  const { data: profile } = await adminClient
+  const { data: profileAdmin, error: adminError } = await adminClient
     .from('profiles')
     .select('role, full_name')
     .eq('id', user.id)
     .single()
+
+  if (adminError || !profileAdmin) {
+    console.error('[PanelLayout] Admin client error:', adminError?.message, '| user.id:', user.id)
+  }
+
+  // Fallback: intentar con el cliente normal (usa sesión del usuario)
+  let profile = profileAdmin
+  if (!profile) {
+    const { data: profileFallback, error: fallbackError } = await supabase
+      .from('profiles')
+      .select('role, full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (fallbackError) {
+      console.error('[PanelLayout] Fallback client error:', fallbackError.message)
+    }
+    profile = profileFallback
+  }
+
+  console.log('[PanelLayout] user.id:', user.id, '| profile:', JSON.stringify(profile))
 
   if (!profile || profile.role === 'lector') {
     // Redirigir al home (NO a /admin/login) para evitar loop con el middleware
