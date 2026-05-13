@@ -7,6 +7,7 @@ import ArticleRowActions from '@/components/admin/ArticleRowActions'
 export default async function ArticulosPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
 
   let myRole = (user!.app_metadata as Record<string, string>)?.role ?? 'lector'
   try {
@@ -16,7 +17,7 @@ export default async function ArticulosPage() {
     }
   } catch { /* usar app_metadata */ }
 
-  const allArticles = await getAllArticlesAdmin()
+  const allArticles = await getAllArticlesAdmin(session?.access_token)
   const articles = myRole === 'admin'
     ? allArticles
     : allArticles.filter((a) => a.author_id === user!.id)

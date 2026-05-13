@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 export default async function NotasPositivasPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
 
   let myRole = (user!.app_metadata as Record<string, string>)?.role ?? 'lector'
   try {
@@ -16,7 +17,7 @@ export default async function NotasPositivasPage() {
 
   if (myRole !== 'admin') redirect('/admin')
 
-  const submissions = await getNotaPositivaSubmissions()
+  const submissions = await getNotaPositivaSubmissions(session?.access_token)
 
   return (
     <div>

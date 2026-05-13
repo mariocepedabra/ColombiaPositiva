@@ -9,6 +9,7 @@ export default async function EditarArticuloPage(props: { params: Promise<{ id: 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/admin/login')
+  const { data: { session } } = await supabase.auth.getSession()
 
   // Leer perfil via RPC (bypasea RLS) con fallback a app_metadata
   let profileRole = (user.app_metadata as Record<string, string> | null)?.role ?? 'lector'
@@ -22,7 +23,7 @@ export default async function EditarArticuloPage(props: { params: Promise<{ id: 
     }
   } catch { /* usar app_metadata */ }
 
-  const article = await getArticleById(id)
+  const article = await getArticleById(id, session?.access_token)
   if (!article) notFound()
 
   // Columnistas solo pueden editar sus propios artículos

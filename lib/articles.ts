@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { Article } from '@/lib/data'
 
 export type DbArticle = {
@@ -90,33 +89,51 @@ export async function getAllSlugs(): Promise<string[]> {
 
 // ---- ADMIN: funciones que requieren autenticación ----
 
-// Helper: admin client solo si la clave parece válida (sb_secret_... o eyJ...)
-// Esto evita queries fallidas silenciosas cuando la clave está mal configurada
-function safeAdminClient() {
-  const key = process.env.SUPABASE_SECRET_KEY ?? ''
-  if (!key || (!key.startsWith('sb_secret_') && !key.startsWith('eyJ'))) {
-    console.warn('[safeAdminClient] SUPABASE_SECRET_KEY no parece válida — usando cliente normal')
-    return null
+// Helper: fetch directo al REST API de Supabase con el JWT del usuario autenticado
+// Mismo enfoque que saveArticle/deleteArticle — evita dependencia de SUPABASE_SECRET_KEY
+async function restFetch<T>(
+  accessToken: string,
+  path: string,
+): Promise<T[]> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !anonKey) return []
+
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    method: 'GET',
+    headers: {
+      'apikey': anonKey,
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    console.error(`[restFetch] GET ${path} → ${res.status}:`, text)
+    return []
   }
-  try {
-    return createAdminClient()
-  } catch (e) {
-    console.error('[safeAdminClient] No se pudo crear el cliente admin:', e)
-    return null
-  }
+
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
 }
 
-// Todos los artículos (con borradores) — usa admin client para bypasear RLS
-export async function getAllArticlesAdmin(): Promise<DbArticle[]> {
+// Todos los artículos (con borradores) — usa session token para bypasear problemas de RLS
+export async function getAllArticlesAdmin(accessToken?: string): Promise<DbArticle[]> {
   try {
-    const admin = safeAdminClient()
-    if (!admin) {
-      // Fallback: cliente normal con RLS
-      const supabase = await createClient()
-      const { data } = await supabase.from('articles').select('*').order('created_at', { ascending: false })
-      return data ?? []
+    if (accessToken) {
+      return await restFetch<DbArticle>(
+        accessToken,
+        'articles?select=*&order=created_at.desc'
+      )
     }
-    const { data, error } = await admin.from('articles').select('*').order('created_at', { ascending: false })
+    // Fallback: cliente normal (requiere RLS permisivo)
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .order('created_at', { ascending: false })
     if (error) console.error('[getAllArticlesAdmin]', error.message)
     return data ?? []
   } catch (e) {
@@ -125,16 +142,18 @@ export async function getAllArticlesAdmin(): Promise<DbArticle[]> {
   }
 }
 
-// Artículo por ID para edición — usa admin client
-export async function getArticleById(id: string): Promise<DbArticle | null> {
+// Artículo por ID para edición — usa session token
+export async function getArticleById(id: string, accessToken?: string): Promise<DbArticle | null> {
   try {
-    const admin = safeAdminClient()
-    if (!admin) {
-      const supabase = await createClient()
-      const { data } = await supabase.from('articles').select('*').eq('id', id).single()
-      return data ?? null
+    if (accessToken) {
+      const rows = await restFetch<DbArticle>(
+        accessToken,
+        `articles?select=*&id=eq.${id}&limit=1`
+      )
+      return rows[0] ?? null
     }
-    const { data } = await admin.from('articles').select('*').eq('id', id).single()
+    const supabase = await createClient()
+    const { data } = await supabase.from('articles').select('*').eq('id', id).single()
     return data ?? null
   } catch (e) {
     console.error('[getArticleById] excepción:', e)
@@ -143,11 +162,17 @@ export async function getArticleById(id: string): Promise<DbArticle | null> {
 }
 
 // Todos los perfiles de usuario (solo admin)
-export async function getAllProfiles(): Promise<Profile[]> {
+export async function getAllProfiles(accessToken?: string): Promise<Profile[]> {
   try {
-    const admin = safeAdminClient()
-    if (!admin) return []
-    const { data } = await admin.from('profiles').select('*').order('created_at', { ascending: false })
+    if (accessToken) {
+      return await restFetch<Profile>(
+        accessToken,
+        'profiles?select=*&order=created_at.desc'
+      )
+    }
+    const supabase = await createClient()
+    const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
+    if (error) console.error('[getAllProfiles]', error.message)
     return data ?? []
   } catch (e) {
     console.error('[getAllProfiles] excepción:', e)
@@ -156,11 +181,17 @@ export async function getAllProfiles(): Promise<Profile[]> {
 }
 
 // Submissions de Nota Positiva (solo admin)
-export async function getNotaPositivaSubmissions() {
+export async function getNotaPositivaSubmissions(accessToken?: string) {
   try {
-    const admin = safeAdminClient()
-    if (!admin) return []
-    const { data } = await admin.from('nota_positiva_submissions').select('*').order('created_at', { ascending: false })
+    if (accessToken) {
+      return await restFetch(
+        accessToken,
+        'nota_positiva_submissions?select=*&order=created_at.desc'
+      )
+    }
+    const supabase = await createClient()
+    const { data, error } = await supabase.from('nota_positiva_submissions').select('*').order('created_at', { ascending: false })
+    if (error) console.error('[getNotaPositivaSubmissions]', error.message)
     return data ?? []
   } catch (e) {
     console.error('[getNotaPositivaSubmissions] excepción:', e)

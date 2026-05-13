@@ -5,6 +5,7 @@ import Link from 'next/link'
 export default async function AdminDashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
 
   // Usar RPC con SECURITY DEFINER (bypasea RLS) para obtener el perfil
   let profile: { role: string; full_name: string } | null = null
@@ -24,7 +25,7 @@ export default async function AdminDashboard() {
     }
   }
 
-  const articles = await getAllArticlesAdmin()
+  const articles = await getAllArticlesAdmin(session?.access_token)
   const published = articles.filter((a) => a.is_published)
   const drafts = articles.filter((a) => !a.is_published)
 
