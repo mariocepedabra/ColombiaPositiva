@@ -117,11 +117,14 @@ export async function saveArticle(formData: FormData) {
   redirect('/admin/articulos')
 }
 
-export async function deleteArticle(id: string, categorySlug: string, slug: string) {
+export async function deleteArticle(id: string, categorySlug: string, slug: string): Promise<void> {
   const supabase = await createClient()
   const db = safeAdminClient() ?? supabase
   const { error } = await db.from('articles').delete().eq('id', id)
-  if (error) return { error: error.message }
+  if (error) {
+    console.error('[deleteArticle]', error.message)
+    return
+  }
 
   revalidatePath('/')
   revalidatePath(`/categoria/${categorySlug}`)
@@ -130,15 +133,17 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
   redirect('/admin/articulos')
 }
 
-export async function togglePublish(id: string, currentState: boolean) {
+export async function togglePublish(id: string, currentState: boolean): Promise<void> {
   const supabase = await createClient()
   const db = safeAdminClient() ?? supabase
   const { error } = await db
     .from('articles')
     .update({ is_published: !currentState })
     .eq('id', id)
-  if (error) return { error: error.message }
-
+  if (error) {
+    console.error('[togglePublish]', error.message)
+    return
+  }
   revalidatePath('/')
   revalidatePath('/admin/articulos')
 }
