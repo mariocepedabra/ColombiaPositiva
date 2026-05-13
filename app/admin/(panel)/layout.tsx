@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -13,43 +12,36 @@ export default async function PanelLayout({
 
   if (!user) redirect('/admin/login')
 
-  // Intentar con admin client (bypasea RLS)
-  const adminClient = createAdminClient()
-  const { data: profileAdmin, error: adminError } = await adminClient
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', user.id)
-    .single()
+  // 1. Leer el rol directamente de app_metadata (sin query a la BD)
+  //    Se actualiza con el SQL: UPDATE auth.users SET raw_app_meta_data = ...
+  const metaRole = (user.app_metadata as Record<string, string> | null)?.role
 
-  if (adminError || !profileAdmin) {
-    console.error('[PanelLayout] Admin client error:', adminError?.message, '| user.id:', user.id)
-  }
-
-  // Fallback: intentar con el cliente normal (usa sesión del usuario)
-  let profile = profileAdmin
-  if (!profile) {
-    const { data: profileFallback, error: fallbackError } = await supabase
-      .from('profiles')
-      .select('role, full_name')
-      .eq('id', user.id)
-      .maybeSingle()
-
-    if (fallbackError) {
-      console.error('[PanelLayout] Fallback client error:', fallbackError.message)
+  // 2. Intentar obtener el perfil completo via RPC (SECURITY DEFINER, bypasea RLS)
+  let profile: { role: string; full_name: string } | null = null
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      profile = rpcData[0] as { role: string; full_name: string }
     }
-    profile = profileFallback
+  } catch {
+    // Si la función RPC no existe todavía, continuar con metaRole
   }
 
-  console.log('[PanelLayout] user.id:', user.id, '| profile:', JSON.stringify(profile))
+  // 3. Determinar el rol efectivo
+  const effectiveRole = profile?.role || metaRole || 'lector'
 
-  if (!profile || profile.role === 'lector') {
-    // Redirigir al home (NO a /admin/login) para evitar loop con el middleware
+  console.log('[PanelLayout] user:', user.email, '| metaRole:', metaRole, '| profileRole:', profile?.role)
+
+  if (!effectiveRole || effectiveRole === 'lector') {
     redirect('/?acceso=denegado')
   }
 
+  // 4. Construir el objeto de perfil para AdminNav
+  const navProfile = profile ?? { role: effectiveRole, full_name: '' }
+
   return (
     <div className="min-h-screen bg-gris-100 flex">
-      <AdminNav profile={profile} userEmail={user.email ?? ''} />
+      <AdminNav profile={navProfile} userEmail={user.email ?? ''} />
       <main className="flex-1 ml-0 md:ml-64 p-6">
         {children}
       </main>
