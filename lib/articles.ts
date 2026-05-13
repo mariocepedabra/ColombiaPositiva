@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { Article } from '@/lib/data'
 
 export type DbArticle = {
@@ -89,20 +90,21 @@ export async function getAllSlugs(): Promise<string[]> {
 
 // ---- ADMIN: funciones que requieren autenticación ----
 
-// Todos los artículos (con borradores) — solo admin/columnista
+// Todos los artículos (con borradores) — usa admin client para bypasear RLS
 export async function getAllArticlesAdmin(): Promise<DbArticle[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data, error } = await admin
     .from('articles')
     .select('*')
     .order('created_at', { ascending: false })
+  if (error) console.error('[getAllArticlesAdmin]', error.message)
   return data ?? []
 }
 
-// Artículo por ID para edición
+// Artículo por ID para edición — usa admin client
 export async function getArticleById(id: string): Promise<DbArticle | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data } = await admin
     .from('articles')
     .select('*')
     .eq('id', id)
@@ -112,8 +114,8 @@ export async function getArticleById(id: string): Promise<DbArticle | null> {
 
 // Todos los perfiles de usuario (solo admin)
 export async function getAllProfiles(): Promise<Profile[]> {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data } = await admin
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false })
@@ -122,8 +124,8 @@ export async function getAllProfiles(): Promise<Profile[]> {
 
 // Submissions de Nota Positiva (solo admin)
 export async function getNotaPositivaSubmissions() {
-  const supabase = await createClient()
-  const { data } = await supabase
+  const admin = createAdminClient()
+  const { data } = await admin
     .from('nota_positiva_submissions')
     .select('*')
     .order('created_at', { ascending: false })
