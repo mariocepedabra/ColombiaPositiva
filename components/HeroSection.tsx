@@ -7,7 +7,7 @@ type Props = {
 }
 
 export default function HeroSection({ articles }: Props) {
-  const [main, second, third, fourth] = articles
+  const [main, second, third, fourth, fifth] = articles
 
   if (!main) return null
 
@@ -15,6 +15,7 @@ export default function HeroSection({ articles }: Props) {
   const secondCat = second ? categories.find((c) => c.slug === second.category) : null
   const thirdCat = third ? categories.find((c) => c.slug === third.category) : null
   const fourthCat = fourth ? categories.find((c) => c.slug === fourth.category) : null
+  const fifthCat = fifth ? categories.find((c) => c.slug === fifth.category) : null
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-6">
@@ -135,25 +136,30 @@ export default function HeroSection({ articles }: Props) {
               <p className="text-xs text-gris-400 font-sans mt-auto pt-2">{fourth.author}</p>
             </article>
           )}
-          {/* Widget suscripción */}
-          <div className="p-4 bg-gris-100 flex-1 flex flex-col justify-center">
-            <p className="font-heading italic text-tinta text-sm leading-relaxed mb-3">
-              "Porque Colombia tiene mucho de qué estar orgullosa."
-            </p>
-            <div className="border-t border-gris-300 pt-3">
-              <p className="font-sans text-xs text-gris-600 mb-2">
-                Recibe lo mejor cada mañana en tu correo.
-              </p>
-              <input
-                type="email"
-                placeholder="tu@correo.com"
-                className="w-full border border-gris-300 bg-white px-3 py-1.5 text-xs font-sans mb-2 focus:outline-none focus:border-verde"
-              />
-              <button className="w-full bg-verde hover:bg-verde-oscuro text-white font-sans font-700 text-xs py-2 tracking-wider uppercase transition-colors">
-                Suscribirse
-              </button>
-            </div>
-          </div>
+          {fifth && (
+            <article className="group flex-1 p-4 flex flex-col">
+              <div className="relative overflow-hidden mb-3" style={{ height: 140 }}>
+                <Image
+                  src={fifth.imageUrl}
+                  alt={fifth.title}
+                  fill
+                  sizes="300px"
+                  className="object-cover group-hover:opacity-90 transition-opacity"
+                />
+              </div>
+              {fifthCat && (
+                <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1" style={{ color: fifthCat.color }}>
+                  {fifthCat.name}
+                </span>
+              )}
+              <Link href={`/articulo/${fifth.slug}`}>
+                <h3 className="font-heading font-700 text-tinta text-sm leading-snug line-clamp-4 group-hover:text-verde transition-colors">
+                  {fifth.title}
+                </h3>
+              </Link>
+              <p className="text-xs text-gris-400 font-sans mt-auto pt-2">{fifth.author}</p>
+            </article>
+          )}
         </div>
       </div>
     </section>

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { createAdminClient } from '@/lib/supabase/admin'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -13,20 +12,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Faltan campos obligatorios' }, { status: 400 })
     }
 
-    // Guardar en Supabase
-    const supabase = createAdminClient()
-    const { error: dbError } = await supabase.from('nota_positiva_submissions').insert({
-      name,
-      email: email || null,
-      title,
-      description,
-      region: region || null,
-      media_url: mediaUrl || null,
-      media_type: mediaType || null,
+    // Guardar en Supabase usando fetch directo con la anon key
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    if (!supabaseUrl || !anonKey) {
+      return NextResponse.json({ error: 'Configuración del servidor incompleta' }, { status: 500 })
+    }
+
+    const insertRes = await fetch(`${supabaseUrl}/rest/v1/nota_positiva_submissions`, {
+      method: 'POST',
+      headers: {
+        'apikey': anonKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        name,
+        email: email || null,
+        title,
+        description,
+        region: region || null,
+        media_url: mediaUrl || null,
+        media_type: mediaType || null,
+      }),
     })
 
-    if (dbError) {
-      console.error('DB error:', dbError)
+    if (!insertRes.ok) {
+      const errText = await insertRes.text()
+      console.error('DB error:', insertRes.status, errText)
       return NextResponse.json({ error: 'Error al guardar' }, { status: 500 })
     }
 

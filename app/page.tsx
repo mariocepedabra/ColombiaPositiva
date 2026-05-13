@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default async function HomePage() {
   const [recentArticles, ...categoryArticles] = await Promise.all([
-    getRecentArticles(4),
+    getRecentArticles(5),
     ...categories.map((cat) => getArticlesByCategory(cat.slug, 4)),
   ])
 
