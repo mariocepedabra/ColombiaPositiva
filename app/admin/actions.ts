@@ -4,25 +4,27 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-// Helper: llamada directa al REST API de Supabase con service_role key
-// Bypasea completamente la librería cliente y sus problemas de autenticación
+// Helper: fetch directo al REST API de Supabase usando el JWT del usuario
+// Usa NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (confirmado correcto) + JWT de sesión
+// No depende de SUPABASE_SECRET_KEY
 async function supabaseRest(
+  accessToken: string,
   path: string,
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   body?: unknown
 ): Promise<{ ok: boolean; error?: string }> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SECRET_KEY
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-  if (!url || !key) {
+  if (!url || !anonKey) {
     return { ok: false, error: 'Variables de entorno de Supabase no configuradas' }
   }
 
   const res = await fetch(`${url}/rest/v1/${path}`, {
     method,
     headers: {
-      'apikey': key,
-      'Authorization': `Bearer ${key}`,
+      'apikey': anonKey,
+      'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
       'Prefer': 'return=minimal',
     },
@@ -97,6 +99,9 @@ export async function saveArticle(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return { error: 'Sesión expirada. Por favor recarga la página.' }
+
   const id = formData.get('article_id') as string
   const title = formData.get('title') as string
   const slug = (formData.get('slug') as string) || generateSlug(title)
@@ -123,12 +128,12 @@ export async function saveArticle(formData: FormData) {
     author_id: user.id,
   }
 
-  // Llamada directa al REST API con service_role key — bypasea RLS completamente
+  // Llamada directa al REST API con el JWT del usuario autenticado
   let result: { ok: boolean; error?: string }
   if (id) {
-    result = await supabaseRest(`articles?id=eq.${id}`, 'PATCH', payload)
+    result = await supabaseRest(session.access_token, `articles?id=eq.${id}`, 'PATCH', payload)
   } else {
-    result = await supabaseRest('articles', 'POST', payload)
+    result = await supabaseRest(session.access_token, 'articles', 'POST', payload)
   }
 
   if (!result.ok) return { error: result.error ?? 'Error al guardar el artículo' }
@@ -141,7 +146,11 @@ export async function saveArticle(formData: FormData) {
 }
 
 export async function deleteArticle(id: string, categorySlug: string, slug: string) {
-  const result = await supabaseRest(`articles?id=eq.${id}`, 'DELETE')
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return { error: 'Sesión expirada' }
+
+  const result = await supabaseRest(session.access_token, `articles?id=eq.${id}`, 'DELETE')
   if (!result.ok) {
     console.error('[deleteArticle]', result.error)
     return { error: result.error }
@@ -155,7 +164,12 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
 }
 
 export async function togglePublish(id: string, currentState: boolean): Promise<void> {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return
+
   const result = await supabaseRest(
+    session.access_token,
     `articles?id=eq.${id}`,
     'PATCH',
     { is_published: !currentState }
@@ -185,7 +199,10 @@ export async function updateUserRole(userId: string, role: string) {
   } catch { /* usar app_metadata */ }
   if (myRole !== 'admin') return { error: 'Sin permisos' }
 
-  const result = await supabaseRest(`profiles?id=eq.${userId}`, 'PATCH', { role })
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return { error: 'Sesión expirada' }
+
+  const result = await supabaseRest(session.access_token, `profiles?id=eq.${userId}`, 'PATCH', { role })
   if (!result.ok) return { error: result.error ?? 'Error al actualizar el rol' }
 
   revalidatePath('/admin/usuarios')
