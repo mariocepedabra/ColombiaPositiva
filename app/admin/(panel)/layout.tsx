@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -12,7 +13,9 @@ export default async function PanelLayout({
 
   if (!user) redirect('/admin/login')
 
-  const { data: profile } = await supabase
+  // Usar admin client para evitar problemas de RLS en server components
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role, full_name')
     .eq('id', user.id)
