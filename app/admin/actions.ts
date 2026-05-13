@@ -5,8 +5,13 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-// Helper: admin client con fallback al cliente normal si la clave es inválida
+// Helper: admin client solo si la clave parece válida (evita errores silenciosos)
+// Las claves de Supabase service role empiezan con 'sb_secret_' o 'eyJ' (JWT)
 function safeAdminClient() {
+  const key = process.env.SUPABASE_SECRET_KEY ?? ''
+  if (!key || (!key.startsWith('sb_secret_') && !key.startsWith('eyJ'))) {
+    return null
+  }
   try {
     return createAdminClient()
   } catch {

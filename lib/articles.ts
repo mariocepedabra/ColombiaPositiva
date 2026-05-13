@@ -90,8 +90,14 @@ export async function getAllSlugs(): Promise<string[]> {
 
 // ---- ADMIN: funciones que requieren autenticación ----
 
-// Helper: obtener admin client con manejo de error si la clave es inválida
+// Helper: admin client solo si la clave parece válida (sb_secret_... o eyJ...)
+// Esto evita queries fallidas silenciosas cuando la clave está mal configurada
 function safeAdminClient() {
+  const key = process.env.SUPABASE_SECRET_KEY ?? ''
+  if (!key || (!key.startsWith('sb_secret_') && !key.startsWith('eyJ'))) {
+    console.warn('[safeAdminClient] SUPABASE_SECRET_KEY no parece válida — usando cliente normal')
+    return null
+  }
   try {
     return createAdminClient()
   } catch (e) {
