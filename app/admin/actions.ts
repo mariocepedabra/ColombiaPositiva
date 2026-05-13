@@ -1,22 +1,46 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-// Helper: admin client solo si la clave parece válida (evita errores silenciosos)
-// Las claves de Supabase service role empiezan con 'sb_secret_' o 'eyJ' (JWT)
-function safeAdminClient() {
-  const key = process.env.SUPABASE_SECRET_KEY ?? ''
-  if (!key || (!key.startsWith('sb_secret_') && !key.startsWith('eyJ'))) {
-    return null
+// Helper: llamada directa al REST API de Supabase con service_role key
+// Bypasea completamente la librería cliente y sus problemas de autenticación
+async function supabaseRest(
+  path: string,
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  body?: unknown
+): Promise<{ ok: boolean; error?: string }> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SECRET_KEY
+
+  if (!url || !key) {
+    return { ok: false, error: 'Variables de entorno de Supabase no configuradas' }
   }
-  try {
-    return createAdminClient()
-  } catch {
-    return null
+
+  const res = await fetch(`${url}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  })
+
+  if (!res.ok) {
+    const text = await res.text()
+    console.error(`[supabaseRest] ${method} ${path} → ${res.status}:`, text)
+    try {
+      const json = JSON.parse(text)
+      return { ok: false, error: json.message ?? json.error ?? text }
+    } catch {
+      return { ok: false, error: text || `Error ${res.status}` }
+    }
   }
+
+  return { ok: true }
 }
 
 // ---- AUTH ----
@@ -99,16 +123,15 @@ export async function saveArticle(formData: FormData) {
     author_id: user.id,
   }
 
-  // Usar admin client para bypasear RLS en articles (el usuario ya está autenticado)
-  const db = safeAdminClient() ?? supabase
-
+  // Llamada directa al REST API con service_role key — bypasea RLS completamente
+  let result: { ok: boolean; error?: string }
   if (id) {
-    const { error } = await db.from('articles').update(payload).eq('id', id)
-    if (error) return { error: error.message }
+    result = await supabaseRest(`articles?id=eq.${id}`, 'PATCH', payload)
   } else {
-    const { error } = await db.from('articles').insert(payload)
-    if (error) return { error: error.message }
+    result = await supabaseRest('articles', 'POST', payload)
   }
+
+  if (!result.ok) return { error: result.error ?? 'Error al guardar el artículo' }
 
   revalidatePath('/')
   revalidatePath(`/categoria/${category_slug}`)
@@ -118,12 +141,10 @@ export async function saveArticle(formData: FormData) {
 }
 
 export async function deleteArticle(id: string, categorySlug: string, slug: string) {
-  const supabase = await createClient()
-  const db = safeAdminClient() ?? supabase
-  const { error } = await db.from('articles').delete().eq('id', id)
-  if (error) {
-    console.error('[deleteArticle]', error.message)
-    return { error: error.message }
+  const result = await supabaseRest(`articles?id=eq.${id}`, 'DELETE')
+  if (!result.ok) {
+    console.error('[deleteArticle]', result.error)
+    return { error: result.error }
   }
 
   revalidatePath('/')
@@ -134,14 +155,13 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
 }
 
 export async function togglePublish(id: string, currentState: boolean): Promise<void> {
-  const supabase = await createClient()
-  const db = safeAdminClient() ?? supabase
-  const { error } = await db
-    .from('articles')
-    .update({ is_published: !currentState })
-    .eq('id', id)
-  if (error) {
-    console.error('[togglePublish]', error.message)
+  const result = await supabaseRest(
+    `articles?id=eq.${id}`,
+    'PATCH',
+    { is_published: !currentState }
+  )
+  if (!result.ok) {
+    console.error('[togglePublish]', result.error)
     return
   }
   revalidatePath('/')
@@ -165,12 +185,8 @@ export async function updateUserRole(userId: string, role: string) {
   } catch { /* usar app_metadata */ }
   if (myRole !== 'admin') return { error: 'Sin permisos' }
 
-  const adminClient = createAdminClient()
-  const { error } = await adminClient
-    .from('profiles')
-    .update({ role })
-    .eq('id', userId)
-  if (error) return { error: error.message }
+  const result = await supabaseRest(`profiles?id=eq.${userId}`, 'PATCH', { role })
+  if (!result.ok) return { error: result.error ?? 'Error al actualizar el rol' }
 
   revalidatePath('/admin/usuarios')
   return { success: true }
