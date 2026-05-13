@@ -6,11 +6,23 @@ export default async function AdminDashboard() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', user!.id)
-    .single()
+  // Usar RPC con SECURITY DEFINER (bypasea RLS) para obtener el perfil
+  let profile: { role: string; full_name: string } | null = null
+  try {
+    const { data: rpcData } = await supabase.rpc('get_my_profile')
+    if (Array.isArray(rpcData) && rpcData.length > 0) {
+      profile = rpcData[0] as { role: string; full_name: string }
+    }
+  } catch {
+    // fallback a app_metadata
+  }
+  // Asegurar nombre y rol desde app_metadata si el perfil no está disponible
+  if (!profile) {
+    profile = {
+      role: (user!.app_metadata as Record<string, string>)?.role ?? 'lector',
+      full_name: '',
+    }
+  }
 
   const articles = await getAllArticlesAdmin()
   const published = articles.filter((a) => a.is_published)
@@ -20,7 +32,7 @@ export default async function AdminDashboard() {
     <div>
       <div className="mb-8">
         <h1 className="font-heading font-700 text-3xl text-tinta">
-          Bienvenido, {profile?.full_name || 'Editor'}
+          Bienvenido, {profile?.full_name?.split(' ')[0] || user!.email?.split('@')[0] || 'Editor'}
         </h1>
         <p className="font-sans text-sm text-gris-600 mt-1">
           Panel de administración · Colombia Positiva
