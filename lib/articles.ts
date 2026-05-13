@@ -90,44 +90,74 @@ export async function getAllSlugs(): Promise<string[]> {
 
 // ---- ADMIN: funciones que requieren autenticación ----
 
+// Helper: obtener admin client con manejo de error si la clave es inválida
+function safeAdminClient() {
+  try {
+    return createAdminClient()
+  } catch (e) {
+    console.error('[safeAdminClient] No se pudo crear el cliente admin:', e)
+    return null
+  }
+}
+
 // Todos los artículos (con borradores) — usa admin client para bypasear RLS
 export async function getAllArticlesAdmin(): Promise<DbArticle[]> {
-  const admin = createAdminClient()
-  const { data, error } = await admin
-    .from('articles')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) console.error('[getAllArticlesAdmin]', error.message)
-  return data ?? []
+  try {
+    const admin = safeAdminClient()
+    if (!admin) {
+      // Fallback: cliente normal con RLS
+      const supabase = await createClient()
+      const { data } = await supabase.from('articles').select('*').order('created_at', { ascending: false })
+      return data ?? []
+    }
+    const { data, error } = await admin.from('articles').select('*').order('created_at', { ascending: false })
+    if (error) console.error('[getAllArticlesAdmin]', error.message)
+    return data ?? []
+  } catch (e) {
+    console.error('[getAllArticlesAdmin] excepción:', e)
+    return []
+  }
 }
 
 // Artículo por ID para edición — usa admin client
 export async function getArticleById(id: string): Promise<DbArticle | null> {
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('articles')
-    .select('*')
-    .eq('id', id)
-    .single()
-  return data ?? null
+  try {
+    const admin = safeAdminClient()
+    if (!admin) {
+      const supabase = await createClient()
+      const { data } = await supabase.from('articles').select('*').eq('id', id).single()
+      return data ?? null
+    }
+    const { data } = await admin.from('articles').select('*').eq('id', id).single()
+    return data ?? null
+  } catch (e) {
+    console.error('[getArticleById] excepción:', e)
+    return null
+  }
 }
 
 // Todos los perfiles de usuario (solo admin)
 export async function getAllProfiles(): Promise<Profile[]> {
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false })
-  return data ?? []
+  try {
+    const admin = safeAdminClient()
+    if (!admin) return []
+    const { data } = await admin.from('profiles').select('*').order('created_at', { ascending: false })
+    return data ?? []
+  } catch (e) {
+    console.error('[getAllProfiles] excepción:', e)
+    return []
+  }
 }
 
 // Submissions de Nota Positiva (solo admin)
 export async function getNotaPositivaSubmissions() {
-  const admin = createAdminClient()
-  const { data } = await admin
-    .from('nota_positiva_submissions')
-    .select('*')
-    .order('created_at', { ascending: false })
-  return data ?? []
+  try {
+    const admin = safeAdminClient()
+    if (!admin) return []
+    const { data } = await admin.from('nota_positiva_submissions').select('*').order('created_at', { ascending: false })
+    return data ?? []
+  } catch (e) {
+    console.error('[getNotaPositivaSubmissions] excepción:', e)
+    return []
+  }
 }
