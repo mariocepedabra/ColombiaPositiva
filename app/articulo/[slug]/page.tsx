@@ -15,6 +15,59 @@ export async function generateMetadata(props: PageProps<'/articulo/[slug]'>): Pr
   return { title: article.title, description: article.excerpt }
 }
 
+function renderContent(content: string) {
+  // Normalizar saltos de línea
+  const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+
+  // Dividir en bloques por doble salto (o más) de línea
+  const blocks = normalized.split(/\n{2,}/).filter((b) => b.trim() !== '')
+
+  return blocks.map((block, blockIdx) => {
+    const lines = block.split('\n').filter((l) => l.trim() !== '')
+    if (lines.length === 0) return null
+
+    // Si todas las líneas son viñetas (•, -, *)
+    const isBulletList = lines.every((l) => /^[•\-\*]\s*/.test(l.trim()))
+    if (isBulletList) {
+      return (
+        <ul key={blockIdx} className="mb-5 space-y-1.5">
+          {lines.map((line, i) => (
+            <li key={i} className="flex gap-2 items-start">
+              <span className="text-verde font-700 mt-0.5 shrink-0">•</span>
+              <span>{line.trim().replace(/^[•\-\*]\s*/, '')}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    // Bloque de una sola línea corta sin puntuación final → subtítulo de sección
+    if (lines.length === 1 && blockIdx > 0) {
+      const line = lines[0].trim()
+      const looksLikeHeading = line.length < 100 && !/[.,;]$/.test(line)
+      if (looksLikeHeading) {
+        return (
+          <h3 key={blockIdx} className="font-heading font-700 text-xl text-tinta mt-7 mb-3">
+            {line}
+          </h3>
+        )
+      }
+    }
+
+    // Párrafo normal — saltos simples se convierten en <br>
+    return (
+      <p key={blockIdx} className="mb-5">
+        {lines.map((line, i) => (
+          <span key={i}>
+            {line}
+            {i < lines.length - 1 && <br />}
+          </span>
+        ))}
+      </p>
+    )
+  })
+}
+
 export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) {
   const { slug } = await props.params
   const article = await getArticleBySlug(slug)
@@ -91,11 +144,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
 
           {/* Cuerpo */}
           <div className="body-text">
-            {article.content.split('\n\n').map((para, idx) => (
-              <p key={idx} className="mb-5">
-                {para}
-              </p>
-            ))}
+            {renderContent(article.content)}
           </div>
 
           {/* Compartir */}
