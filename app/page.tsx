@@ -8,7 +8,7 @@ import { getRecentArticles, getArticlesByCategory } from '@/lib/articles'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Colombia Positiva — El periódico de las buenas noticias',
+  title: 'Solo Noticias Positivas',
 }
 
 export default async function HomePage() {
