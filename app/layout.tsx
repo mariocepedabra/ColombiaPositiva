@@ -21,14 +21,14 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Colombia Positiva",
-    default: "Colombia Positiva — El periódico de las buenas noticias",
+    template: "%s | Solo Noticias Positivas",
+    default: "Solo Noticias Positivas",
   },
   description:
     "Colombia Positiva es el periódico digital nacional que celebra los logros, avances y buenas noticias del país. Economía, Medio Ambiente, Cultura, Deporte, Ciencia y Regiones.",
   keywords: ["Colombia", "noticias positivas", "periódico", "buenas noticias"],
   openGraph: {
-    title: "Colombia Positiva",
+    title: "Solo Noticias Positivas",
     description: "El periódico de las buenas noticias de Colombia",
     locale: "es_CO",
     type: "website",
