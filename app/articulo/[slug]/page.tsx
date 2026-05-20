@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { getCategoryBySlug, formatDate } from '@/lib/data'
 import { getArticleBySlug, getArticlesByCategory } from '@/lib/articles'
 import NewsCard from '@/components/NewsCard'
+import ArticleBodyWrapper from '@/components/ArticleBodyWrapper'
+import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 60
 
@@ -78,6 +80,22 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
     (a) => a.slug !== slug
   ).slice(0, 4)
 
+  // Determinar si el usuario puede copiar (solo Mario/admin)
+  let canCopy = false
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const { data: rpcData } = await supabase.rpc('get_my_profile')
+      if (Array.isArray(rpcData) && rpcData.length > 0) {
+        const profile = rpcData[0] as { role: string; full_name: string }
+        canCopy = profile.role === 'admin' || profile.full_name?.toLowerCase().includes('mario')
+      }
+    }
+  } catch {
+    canCopy = false
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -143,16 +161,16 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
           </div>
 
           {/* Cuerpo */}
-          <div className="body-text">
+          <ArticleBodyWrapper canCopy={canCopy}>
             {renderContent(article.content)}
-          </div>
+          </ArticleBodyWrapper>
 
           {/* Compartir */}
           <div className="mt-8 pt-5 border-t border-gris-200 flex flex-wrap items-center gap-3">
             <span className="font-sans text-xs font-700 uppercase tracking-wider text-gris-600">Compartir:</span>
             {[
               { label: 'Facebook', bg: '#1877F2' },
-              { label: 'X / Twitter', bg: '#000' },
+              { label: 'X / Twitter', bg: '#006138' },
               { label: 'WhatsApp', bg: '#25D366' },
             ].map((s) => (
               <button

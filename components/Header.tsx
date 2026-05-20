@@ -69,12 +69,9 @@ export default async function Header() {
         </div>
 
         <Link href="/" className="block">
-          <h1 className="font-heading font-900 text-4xl md:text-6xl text-verde tracking-tight leading-none hover:text-[#EFBE05] transition-colors duration-300">
+          <h1 className="font-heading font-900 text-4xl md:text-6xl text-[#EFBE05] tracking-tight leading-none hover:text-[#006138] transition-colors duration-300">
             Colombia Positiva
           </h1>
-          <p className="font-heading italic text-verde text-sm md:text-base mt-1 tracking-wide hover:text-[#EFBE05] transition-colors duration-300">
-            El periódico de las buenas noticias de Colombia
-          </p>
         </Link>
 
         {/* Línea ornamental inferior */}

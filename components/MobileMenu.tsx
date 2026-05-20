@@ -26,7 +26,7 @@ export default function MobileMenu() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-40 bg-black/60" onClick={() => setOpen(false)}>
+        <div className="fixed inset-0 z-40 bg-[#006138]/60" onClick={() => setOpen(false)}>
           <nav
             className="absolute top-0 left-0 h-full w-72 bg-papel border-r border-gris-200 flex flex-col shadow-xl"
             onClick={(e) => e.stopPropagation()}

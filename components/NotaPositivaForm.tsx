@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 const REGIONES = [
   'Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá',
@@ -11,22 +11,75 @@ const REGIONES = [
   'Vaupés', 'Vichada', 'Bogotá D.C.'
 ]
 
-type MediaMode = 'none' | 'image' | 'video'
-
 export default function NotaPositivaForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [region, setRegion] = useState('')
-  const [mediaMode, setMediaMode] = useState<MediaMode>('none')
-  const [mediaUrl, setMediaUrl] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [imageError, setImageError] = useState('')
+  const [dragOver, setDragOver] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function uploadFile(file: File) {
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError('La imagen no puede superar 5 MB')
+      return
+    }
+    setUploadingImage(true)
+    setImageError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/nota-positiva/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error al subir la imagen')
+      setImageUrl(data.url)
+    } catch (err: unknown) {
+      setImageError(err instanceof Error ? err.message : 'Error al subir la imagen')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) uploadFile(file)
+    e.target.value = ''
+  }
+
+  function handleDragOver(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(true)
+  }
+
+  function handleDragLeave() {
+    setDragOver(false)
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file && file.type.startsWith('image/')) uploadFile(file)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!imageUrl) {
+      setError('Debes adjuntar una imagen de portada.')
+      return
+    }
     setError('')
     setSending(true)
 
@@ -40,8 +93,8 @@ export default function NotaPositivaForm() {
           title,
           description,
           region: region || undefined,
-          mediaUrl: mediaUrl || undefined,
-          mediaType: mediaMode !== 'none' ? mediaMode : undefined,
+          mediaUrl: imageUrl,
+          mediaType: 'image',
         }),
       })
 
@@ -56,6 +109,12 @@ export default function NotaPositivaForm() {
     }
   }
 
+  function resetForm() {
+    setSent(false)
+    setName(''); setEmail(''); setTitle(''); setDescription('')
+    setRegion(''); setImageUrl(''); setImageError('')
+  }
+
   if (sent) {
     return (
       <div className="text-center py-12">
@@ -68,11 +127,7 @@ export default function NotaPositivaForm() {
           y si es publicada, te contactaremos.
         </p>
         <button
-          onClick={() => {
-            setSent(false)
-            setName(''); setEmail(''); setTitle(''); setDescription('')
-            setRegion(''); setMediaMode('none'); setMediaUrl('')
-          }}
+          onClick={resetForm}
           className="mt-8 font-sans text-xs text-verde hover:underline"
         >
           Enviar otra historia →
@@ -167,40 +222,63 @@ export default function NotaPositivaForm() {
         />
       </div>
 
-      {/* Multimedia */}
+      {/* Imagen de portada */}
       <div>
         <label className="block font-sans text-xs font-700 uppercase tracking-wider text-gris-600 mb-2">
-          Adjuntar imagen o video <span className="font-400 normal-case tracking-normal">(opcional)</span>
+          Imagen de portada *
         </label>
-        <div className="flex gap-2 mb-3">
-          {(['none', 'image', 'video'] as MediaMode[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => { setMediaMode(m); setMediaUrl('') }}
-              className={`font-sans text-xs px-3 py-1.5 border transition-colors ${
-                mediaMode === m
-                  ? 'bg-verde text-white border-verde'
-                  : 'border-gris-300 text-gris-600 hover:border-verde'
-              }`}
-            >
-              {m === 'none' ? 'Sin adjunto' : m === 'image' ? '🖼️ Imagen' : '🎥 Video'}
-            </button>
-          ))}
-        </div>
 
-        {mediaMode !== 'none' && (
-          <input
-            type="url"
-            value={mediaUrl}
-            onChange={(e) => setMediaUrl(e.target.value)}
-            className="w-full border border-gris-300 bg-white px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-verde"
-            placeholder={
-              mediaMode === 'image'
-                ? 'https://enlace-a-tu-imagen.com/foto.jpg'
-                : 'https://youtube.com/watch?v=... o https://instagram.com/...'
-            }
-          />
+        {imageUrl ? (
+          <div className="relative border border-gris-200 overflow-hidden" style={{ height: 200 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
+              alt="Vista previa de portada"
+              className="w-full h-full object-cover"
+            />
+            <button
+              type="button"
+              onClick={() => { setImageUrl(''); setImageError('') }}
+              className="absolute top-2 right-2 bg-[#006138]/70 text-white font-sans text-xs px-2 py-1 hover:bg-[#006138]/90 transition-colors"
+            >
+              Quitar imagen
+            </button>
+          </div>
+        ) : (
+          <div
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className={`border-2 border-dashed cursor-pointer p-8 text-center transition-colors ${
+              dragOver ? 'border-verde bg-verde-claro/20' : 'border-gris-300 hover:border-verde'
+            }`}
+          >
+            {uploadingImage ? (
+              <p className="font-sans text-sm text-gris-600">Subiendo imagen...</p>
+            ) : (
+              <>
+                <p className="font-sans text-sm text-gris-600 mb-1">
+                  Arrastra y suelta una imagen aquí, o{' '}
+                  <span className="text-verde underline">haz clic para seleccionar</span>
+                </p>
+                <p className="font-sans text-xs text-gris-400">
+                  JPG, PNG, WEBP · Máx 5 MB
+                </p>
+              </>
+            )}
+          </div>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        {imageError && (
+          <p className="font-sans text-xs text-red-600 mt-1">{imageError}</p>
         )}
       </div>
 
@@ -208,13 +286,16 @@ export default function NotaPositivaForm() {
       <div className="pt-2">
         <button
           type="submit"
-          disabled={sending}
+          disabled={sending || uploadingImage}
           className="w-full md:w-auto bg-verde hover:bg-verde-oscuro text-white font-sans font-700 text-xs px-10 py-3.5 tracking-widest uppercase transition-colors disabled:opacity-60"
         >
           {sending ? 'Enviando...' : '✦ Enviar mi nota positiva'}
         </button>
         <p className="font-sans text-xs text-gris-400 mt-3">
           Tu historia será revisada por el equipo editorial antes de ser publicada.
+        </p>
+        <p className="font-sans text-xs text-gris-400 mt-1">
+          Te contactaremos si necesitamos más información.
         </p>
       </div>
     </form>

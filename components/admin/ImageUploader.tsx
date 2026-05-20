@@ -133,7 +133,7 @@ export default function ImageUploader({ value, onChange }: Props) {
           <button
             type="button"
             onClick={() => onChange('')}
-            className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 hover:bg-black/80"
+            className="absolute top-2 right-2 bg-[#006138]/60 text-white text-xs px-2 py-1 hover:bg-[#006138]/80"
           >
             Quitar
           </button>
