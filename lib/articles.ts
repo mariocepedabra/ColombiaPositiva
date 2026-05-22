@@ -53,7 +53,7 @@ export async function getRecentArticles(limit = 4): Promise<Article[]> {
 }
 
 // Artículos por categoría
-export async function getArticlesByCategory(categorySlug: string, limit = 4): Promise<Article[]> {
+export async function getArticlesByCategory(categorySlug: string, limit = 4, offset = 0): Promise<Article[]> {
   const supabase = await createClient()
   const { data } = await supabase
     .from('articles')
@@ -61,8 +61,19 @@ export async function getArticlesByCategory(categorySlug: string, limit = 4): Pr
     .eq('is_published', true)
     .eq('category_slug', categorySlug)
     .order('published_at', { ascending: false })
-    .limit(limit)
+    .range(offset, offset + limit - 1)
   return (data ?? []).map(normalize)
+}
+
+// Total de artículos por categoría (para paginación)
+export async function getArticleCountByCategory(categorySlug: string): Promise<number> {
+  const supabase = await createClient()
+  const { count } = await supabase
+    .from('articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_published', true)
+    .eq('category_slug', categorySlug)
+  return count ?? 0
 }
 
 // Artículo por slug (público)
