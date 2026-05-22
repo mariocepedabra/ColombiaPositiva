@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         hostname: 'hyyjxeafxccrbkxgnmcz.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'pagina10.com',
+      },
     ],
   },
 }

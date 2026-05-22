@@ -24,6 +24,7 @@ export const categories: Category[] = [
   { slug: 'deporte', name: 'Deporte', color: '#b7770d' },
   { slug: 'ciencia', name: 'Ciencia', color: '#148f77' },
   { slug: 'regiones', name: 'Regiones', color: '#922b21' },
+  { slug: 'personajes', name: 'Personajes', color: '#c0392b' },
 ]
 
 export const breakingNewsFallback: string[] = [

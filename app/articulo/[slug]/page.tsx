@@ -17,6 +17,10 @@ export async function generateMetadata(props: PageProps<'/articulo/[slug]'>): Pr
   return { title: article.title, description: article.excerpt }
 }
 
+function isHtmlContent(content: string): boolean {
+  return /<(p|div|strong|em|h[1-6]|ul|ol|li|br|a|figure|img)\b/i.test(content)
+}
+
 function renderContent(content: string) {
   // Normalizar saltos de línea
   const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
@@ -162,7 +166,11 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
 
           {/* Cuerpo */}
           <ArticleBodyWrapper canCopy={canCopy}>
-            {renderContent(article.content)}
+            {isHtmlContent(article.content) ? (
+              <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            ) : (
+              renderContent(article.content)
+            )}
           </ArticleBodyWrapper>
 
           {/* Compartir */}
