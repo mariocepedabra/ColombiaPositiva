@@ -208,22 +208,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
               </div>
             )}
 
-            {/* Newsletter */}
-            <div className="bg-tinta p-5 text-white">
-              <h3 className="font-heading font-700 text-lg text-white mb-1">Boletín matutino</h3>
-              <div className="w-8 border-t border-verde mb-3" />
-              <p className="font-sans text-white/60 text-sm leading-relaxed mb-3">
-                Las mejores noticias positivas de Colombia cada mañana en tu correo.
-              </p>
-              <input
-                type="email"
-                placeholder="tu@correo.com"
-                className="w-full bg-white/5 border border-white/20 px-3 py-2 text-sm text-white placeholder-white/30 mb-2 focus:outline-none focus:border-verde font-sans"
-              />
-              <button className="w-full bg-verde hover:bg-verde-oscuro text-white font-sans font-700 text-xs py-2.5 tracking-widest uppercase transition-colors">
-                Suscribirse
-              </button>
-            </div>
+            {/* Boletín matutino — oculto temporalmente */}
           </div>
         </aside>
       </div>

@@ -44,16 +44,8 @@ export default async function Header() {
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs text-gris-600 font-sans">
           <span className="capitalize">{today}</span>
           <div className="hidden sm:flex items-center gap-4">
-            <a href="#" className="hover:text-verde transition-colors">Suscríbete</a>
-            <span className="text-gris-300">|</span>
-            <a href="#" className="hover:text-verde transition-colors">Edición impresa</a>
-            <span className="text-gris-300">|</span>
-            <a href="#" className="hover:text-verde transition-colors">Contacto</a>
             {userDisplay && (
-              <>
-                <span className="text-gris-300">|</span>
-                <UserMenu name={userDisplay.name} role={userDisplay.role} />
-              </>
+              <UserMenu name={userDisplay.name} role={userDisplay.role} />
             )}
           </div>
         </div>
@@ -85,16 +77,21 @@ export default async function Header() {
 
         {/* Búsqueda en desktop */}
         <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden lg:flex items-center gap-2">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Buscar..."
-              className="border border-gris-300 bg-white py-1.5 pl-3 pr-8 text-xs font-sans focus:outline-none focus:border-verde w-40"
-            />
-            <svg className="w-3.5 h-3.5 text-gris-400 absolute right-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
-            </svg>
-          </div>
+          <form action="/buscar" method="GET">
+            <div className="relative">
+              <input
+                type="search"
+                name="q"
+                placeholder="Buscar..."
+                className="border border-gris-300 bg-white py-1.5 pl-3 pr-8 text-xs font-sans focus:outline-none focus:border-verde w-40"
+              />
+              <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2">
+                <svg className="w-3.5 h-3.5 text-gris-400 hover:text-verde transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z" />
+                </svg>
+              </button>
+            </div>
+          </form>
         </div>
 
         <MobileMenu />

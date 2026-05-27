@@ -19,8 +19,8 @@ export default async function HomePage() {
 
   const tickerItems =
     recentArticles.length > 0
-      ? recentArticles.map((a) => a.title)
-      : breakingNewsFallback
+      ? recentArticles.map((a) => ({ title: a.title, slug: a.slug }))
+      : breakingNewsFallback.map((title) => ({ title, slug: null }))
 
   return (
     <>

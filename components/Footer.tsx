@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="bg-tinta text-white mt-10">
       {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Masthead */}
           <div className="md:col-span-2">
             <h2 className="font-heading font-900 text-3xl text-white mb-1 leading-tight">
@@ -61,24 +61,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Boletín */}
-          <div>
-            <h3 className="font-sans font-700 text-white/50 text-xs uppercase tracking-widest mb-3">
-              Boletín Matutino
-            </h3>
-            <div className="w-6 border-t border-verde mb-3" />
-            <p className="font-sans text-white/60 text-sm leading-relaxed mb-3">
-              Las mejores noticias positivas de Colombia cada mañana en tu correo electrónico.
-            </p>
-            <input
-              type="email"
-              placeholder="tu@correo.com"
-              className="w-full bg-white/5 border border-white/20 px-3 py-2 text-sm text-white placeholder-white/30 mb-2 focus:outline-none focus:border-verde font-sans"
-            />
-            <button className="w-full bg-verde hover:bg-verde-oscuro text-white font-sans font-700 text-xs py-2.5 tracking-widest uppercase transition-colors">
-              Suscribirse
-            </button>
-          </div>
+          {/* Boletín Matutino — oculto temporalmente */}
         </div>
       </div>
 

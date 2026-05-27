@@ -1,7 +1,14 @@
 'use client'
 
+import Link from 'next/link'
+
+export type TickerItem = {
+  title: string
+  slug: string | null
+}
+
 type Props = {
-  items: string[]
+  items: TickerItem[]
 }
 
 export default function BreakingTicker({ items }: Props) {
@@ -17,12 +24,23 @@ export default function BreakingTicker({ items }: Props) {
         </div>
         <div className="overflow-hidden flex-1">
           <div className="ticker-track py-2">
-            {doubled.map((item, idx) => (
-              <span key={idx} className="text-white font-sans text-xs px-8 whitespace-nowrap">
-                {item}
-                <span className="ml-8 text-white/40">◆</span>
-              </span>
-            ))}
+            {doubled.map((item, idx) =>
+              item.slug ? (
+                <Link
+                  key={idx}
+                  href={`/articulo/${item.slug}`}
+                  className="text-white font-sans text-xs px-8 whitespace-nowrap hover:text-[rgb(239,191,4)] transition-colors"
+                >
+                  {item.title}
+                  <span className="ml-8 text-white/40">◆</span>
+                </Link>
+              ) : (
+                <span key={idx} className="text-white font-sans text-xs px-8 whitespace-nowrap">
+                  {item.title}
+                  <span className="ml-8 text-white/40">◆</span>
+                </span>
+              )
+            )}
           </div>
         </div>
       </div>
