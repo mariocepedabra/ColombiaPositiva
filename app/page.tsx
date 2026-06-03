@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import BreakingTicker from '@/components/BreakingTicker'
+import VideoSection from '@/components/VideoSection'
 import HeroSection from '@/components/HeroSection'
 import CategorySection from '@/components/CategorySection'
 import MostReadSection from '@/components/MostReadSection'
@@ -26,6 +27,10 @@ export default async function HomePage() {
   return (
     <>
       <BreakingTicker items={tickerItems} />
+
+      {/* Sección de videos — "Historias de Colombia Positiva" */}
+      <VideoSection />
+
       <HeroSection articles={recentArticles} />
 
       {/* Las 10 historias más leídas */}

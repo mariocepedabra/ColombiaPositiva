@@ -40,6 +40,7 @@ export default function AdminNav({ profile, userEmail }: Props) {
         <NavItem href="/admin" label="Dashboard" icon="🏠" active={pathname === '/admin'} />
         <NavItem href="/admin/nuevo" label="Nueva nota" icon="✍️" active={isActive('/admin/nuevo')} />
         <NavItem href="/admin/articulos" label="Artículos" icon="📰" active={isActive('/admin/articulos')} />
+        <NavItem href="/admin/videos" label="Videos" icon="🎬" active={isActive('/admin/videos')} />
 
         {profile.role === 'admin' && (
           <>

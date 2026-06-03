@@ -73,6 +73,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
               <MobileNavItem href="/admin" label="Dashboard" icon="🏠" active={pathname === '/admin'} />
               <MobileNavItem href="/admin/nuevo" label="Nueva nota" icon="✍️" active={isActive('/admin/nuevo')} />
               <MobileNavItem href="/admin/articulos" label="Artículos" icon="📰" active={isActive('/admin/articulos')} />
+              <MobileNavItem href="/admin/videos" label="Videos" icon="🎬" active={isActive('/admin/videos')} />
               {profile.role === 'admin' && (
                 <>
                   <div className="px-6 py-2 mt-2">

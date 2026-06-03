@@ -88,6 +88,13 @@
 
 html { scroll-behavior: smooth; }
 
+/* Animación de entrada para el carrusel de videos */
+@keyframes video-slide-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.video-slide-in { animation: video-slide-in 0.35s ease; }
+
 /* Botón NOTA POSITIVA — animación hover */
 .nota-positiva-btn {
   transition: background-color 0.3s ease, color 0.3s ease,
