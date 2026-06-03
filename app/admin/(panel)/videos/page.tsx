@@ -1,25 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import VideoManager from '@/components/admin/VideoManager'
 import type { Video } from '@/lib/videos'
 
 export default async function VideosPage() {
-  // Verificar que es admin
   const supabase = await createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return <p>No autorizado</p>
 
-  // Obtener todos los videos (incluyendo inactivos) con admin client
+  // Verificar sesión
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return <p className="p-6 font-sans text-sm text-red-600">No autorizado</p>
+
+  // Obtener todos los videos — el RLS permite al admin ver activos e inactivos
   let videos: Video[] = []
   try {
-    const admin = createAdminClient()
-    const { data } = await admin
+    const { data, error } = await supabase
       .from('videos')
       .select('*')
       .order('created_at', { ascending: false })
+    if (error) console.error('[VideosPage] fetch error:', error.message)
     videos = (data ?? []) as Video[]
-  } catch {
-    videos = []
+  } catch (err) {
+    console.error('[VideosPage] exception:', err)
   }
 
   return <VideoManager initialVideos={videos} />

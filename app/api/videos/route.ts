@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { detectPlatform } from '@/lib/videos'
 
-async function requireAdmin() {
+async function getAdminClient() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   try {
     const { data } = await supabase.rpc('get_my_profile')
     const profile = Array.isArray(data) ? data[0] as { role: string } : null
-    return profile?.role === 'admin' ? user : null
+    if (profile?.role !== 'admin') return null
+    return supabase  // devolver el cliente autenticado como Mario
   } catch { return null }
 }
 
@@ -31,15 +31,14 @@ export async function GET() {
 
 // POST — crear video desde URL (solo admin)
 export async function POST(request: NextRequest) {
-  const admin = await requireAdmin()
-  if (!admin) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
+  const supabase = await getAdminClient()
+  if (!supabase) return NextResponse.json({ error: 'Sin permisos' }, { status: 403 })
 
   try {
     const { url, title, platform: explicitPlatform } = await request.json()
     if (!url) return NextResponse.json({ error: 'URL requerida' }, { status: 400 })
 
     const platform = explicitPlatform ?? detectPlatform(url)
-    const supabase = createAdminClient()
 
     const { data, error } = await supabase
       .from('videos')
@@ -47,7 +46,10 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('Video insert error:', error.message)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
     return NextResponse.json({ video: data })
   } catch (err) {
     console.error('POST /api/videos:', err)
