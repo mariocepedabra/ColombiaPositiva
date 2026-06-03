@@ -6,6 +6,7 @@ import { getCategoryBySlug, formatDate } from '@/lib/data'
 import { getArticleBySlug, getArticlesByCategory } from '@/lib/articles'
 import NewsCard from '@/components/NewsCard'
 import ArticleBodyWrapper from '@/components/ArticleBodyWrapper'
+import ViewTracker from '@/components/ViewTracker'
 import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 60
@@ -163,6 +164,9 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
               priority
             />
           </div>
+
+          {/* Rastreador de visitas (invisible) */}
+          <ViewTracker slug={article.slug} />
 
           {/* Cuerpo */}
           <ArticleBodyWrapper canCopy={canCopy}>

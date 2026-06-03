@@ -52,6 +52,19 @@ export async function getRecentArticles(limit = 4): Promise<Article[]> {
   return (data ?? []).map(normalize)
 }
 
+// Top artículos más leídos
+export async function getTopArticles(limit = 10): Promise<Article[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('articles')
+    .select('*')
+    .eq('is_published', true)
+    .order('view_count', { ascending: false, nullsFirst: false })
+    .order('published_at', { ascending: false })
+    .limit(limit)
+  return (data ?? []).map(normalize)
+}
+
 // Artículos por categoría
 export async function getArticlesByCategory(categorySlug: string, limit = 4, offset = 0): Promise<Article[]> {
   const supabase = await createClient()

@@ -88,6 +88,25 @@
 
 html { scroll-behavior: smooth; }
 
+/* Botón NOTA POSITIVA — animación hover */
+.nota-positiva-btn {
+  transition: background-color 0.3s ease, color 0.3s ease,
+              transform 0.3s ease, box-shadow 0.3s ease;
+}
+.nota-positiva-btn:hover {
+  background-color: rgb(0, 96, 57) !important;
+  color: rgb(239, 190, 5) !important;
+  transform: scale(1.07) translateY(-2px);
+  box-shadow: 0 6px 22px rgba(239, 190, 5, 0.5);
+}
+@keyframes nota-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,190,5,0.4); }
+  50%       { box-shadow: 0 0 20px rgba(239,190,5,0.9); }
+}
+.nota-positiva-btn:hover {
+  animation: nota-glow 1s ease-in-out infinite;
+}
+
 *:focus-visible {
   outline: 2px solid #006039;
   outline-offset: 2px;

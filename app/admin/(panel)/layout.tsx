@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
+import AdminMobileNav from '@/components/admin/AdminMobileNav'
 
 export default async function PanelLayout({
   children,
@@ -42,7 +43,8 @@ export default async function PanelLayout({
   return (
     <div className="min-h-screen bg-gris-100 flex">
       <AdminNav profile={navProfile} userEmail={user.email ?? ''} />
-      <main className="flex-1 ml-0 md:ml-64 p-6">
+      <AdminMobileNav profile={navProfile} userEmail={user.email ?? ''} />
+      <main className="flex-1 ml-0 md:ml-64 p-6 pt-16 md:pt-6">
         {children}
       </main>
     </div>

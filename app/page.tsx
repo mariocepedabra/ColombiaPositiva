@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import BreakingTicker from '@/components/BreakingTicker'
 import HeroSection from '@/components/HeroSection'
 import CategorySection from '@/components/CategorySection'
+import MostReadSection from '@/components/MostReadSection'
 import { categories, breakingNewsFallback } from '@/lib/data'
 import { getRecentArticles, getArticlesByCategory } from '@/lib/articles'
 
@@ -26,6 +27,9 @@ export default async function HomePage() {
     <>
       <BreakingTicker items={tickerItems} />
       <HeroSection articles={recentArticles} />
+
+      {/* Las 10 historias más leídas */}
+      <MostReadSection />
 
       {/* Divisor ornamental */}
       <div className="max-w-7xl mx-auto px-4">

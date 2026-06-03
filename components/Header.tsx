@@ -114,7 +114,7 @@ export default async function Header() {
               </li>
             ))}
             <li>
-              <Link href="/nota-positiva" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-[#EFBE05] hover:text-white hover:bg-verde transition-all">
+              <Link href="/nota-positiva" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
                 ✦ Nota Positiva
               </Link>
             </li>
