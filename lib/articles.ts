@@ -14,6 +14,7 @@ export type DbArticle = {
   is_published: boolean
   published_at: string
   read_time: number
+  view_count: number
   created_at: string
   updated_at: string
 }

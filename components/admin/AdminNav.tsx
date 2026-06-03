@@ -46,6 +46,7 @@ export default function AdminNav({ profile, userEmail }: Props) {
             <div className="px-6 py-2 mt-2">
               <p className="font-sans text-xs uppercase tracking-widest text-white/30">Admin</p>
             </div>
+            <NavItem href="/admin/estadisticas" label="Estadísticas" icon="📊" active={isActive('/admin/estadisticas')} />
             <NavItem href="/admin/usuarios" label="Usuarios" icon="👥" active={isActive('/admin/usuarios')} />
             <NavItem href="/admin/notas-positivas" label="Notas del público" icon="📬" active={isActive('/admin/notas-positivas')} />
           </>

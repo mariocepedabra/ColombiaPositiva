@@ -79,6 +79,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
                     <p className="font-sans text-xs uppercase tracking-widest text-white/30">Admin</p>
                   </div>
                   <MobileNavItem href="/admin/usuarios" label="Usuarios" icon="👥" active={isActive('/admin/usuarios')} />
+                  <MobileNavItem href="/admin/estadisticas" label="Estadísticas" icon="📊" active={isActive('/admin/estadisticas')} />
                   <MobileNavItem href="/admin/notas-positivas" label="Notas del público" icon="📬" active={isActive('/admin/notas-positivas')} />
                 </>
               )}
