@@ -22,13 +22,9 @@ export default async function VideoSection() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
-      {/* Título de la sección */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 border-t-2 border-tinta" />
-        <h2 className="font-sans font-700 text-xs uppercase tracking-[0.25em] text-tinta whitespace-nowrap">
-          🎬 Historias de Colombia Positiva
-        </h2>
-        <div className="flex-1 border-t-2 border-tinta" />
+      {/* Título de la sección — mismo estilo que "Noticias Principales" */}
+      <div className="ornament text-xs tracking-widest uppercase mb-5 font-sans">
+        <span>Historias de Colombia Positiva</span>
       </div>
 
       <VideoCarousel videos={videos} />
