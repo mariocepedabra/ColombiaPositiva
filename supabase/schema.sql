@@ -37,7 +37,7 @@ CREATE TABLE public.articles (
   excerpt TEXT NOT NULL DEFAULT '',
   content TEXT NOT NULL DEFAULT '',
   category_slug TEXT NOT NULL CHECK (
-    category_slug IN ('economia', 'medio-ambiente', 'cultura', 'deporte', 'ciencia', 'regiones')
+    category_slug IN ('economia', 'medio-ambiente', 'cultura', 'deporte', 'ciencia', 'regiones', 'personajes', 'educacion')
   ),
   image_url TEXT,
   author_name TEXT NOT NULL DEFAULT 'Redacción Colombia Positiva',

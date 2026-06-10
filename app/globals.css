@@ -95,6 +95,13 @@ html { scroll-behavior: smooth; }
 }
 .video-slide-in { animation: video-slide-in 0.35s ease; }
 
+/* Transición suave del carrusel de Noticias Principales (solo opacidad, sin saltos de layout) */
+@keyframes hero-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.hero-fade-in { animation: hero-fade 0.5s ease; }
+
 /* Botón NOTA POSITIVA — animación hover */
 .nota-positiva-btn {
   transition: background-color 0.3s ease, color 0.3s ease,

@@ -103,7 +103,7 @@ export default async function Header() {
           <ul className="hidden md:flex items-center justify-center">
             <li>
               <Link href="/" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
-                Portada
+                Inicio
               </Link>
             </li>
             {categories.map((cat) => (

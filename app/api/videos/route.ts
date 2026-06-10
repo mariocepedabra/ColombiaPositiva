@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { detectPlatform } from '@/lib/videos'
+import { detectPlatform, platformLabel } from '@/lib/videos'
 
 async function getAdminClient() {
   const supabase = await createClient()
@@ -40,11 +40,31 @@ export async function POST(request: NextRequest) {
 
     const platform = explicitPlatform ?? detectPlatform(url)
 
-    const { data, error } = await supabase
+    // El link debe corresponder a la división elegida (Instagram/Facebook/TikTok)
+    if (['instagram', 'facebook', 'tiktok'].includes(platform) && detectPlatform(url) !== platform) {
+      return NextResponse.json(
+        { error: `El link no corresponde a ${platformLabel(platform)}. Verifica la URL.` },
+        { status: 400 }
+      )
+    }
+
+    const row = { url: url.trim(), title: title?.trim() ?? '', is_active: true }
+    let { data, error } = await supabase
       .from('videos')
-      .insert({ url: url.trim(), title: title?.trim() ?? '', platform, is_active: true })
+      .insert({ ...row, platform })
       .select()
       .single()
+
+    // Si la columna platform tiene un CHECK antiguo que no acepta los valores
+    // nuevos (instagram/facebook), guardamos 'direct': la portada y el panel
+    // clasifican por URL, así que el video queda en la división correcta.
+    if (error?.code === '23514') {
+      ;({ data, error } = await supabase
+        .from('videos')
+        .insert({ ...row, platform: 'direct' })
+        .select()
+        .single())
+    }
 
     if (error) {
       console.error('Video insert error:', error.message)

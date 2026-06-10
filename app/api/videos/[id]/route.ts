@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { detectPlatform } from '@/lib/videos'
 
 async function getAdminClient() {
   const supabase = await createClient()
@@ -66,7 +67,8 @@ export async function DELETE(
       .single()
 
     // Si es archivo directo, intentar eliminarlo del bucket 'videos'
-    if (video?.platform === 'direct') {
+    // (detectPlatform descarta links de redes guardados con platform 'direct')
+    if (video?.platform === 'direct' && detectPlatform(video.url) === 'direct') {
       try {
         const url = new URL(video.url)
         const pathParts = url.pathname.split('/videos/')

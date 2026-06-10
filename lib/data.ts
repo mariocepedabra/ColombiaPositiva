@@ -17,14 +17,17 @@ export type Article = {
   imageUrl: string
 }
 
+// Los slugs 'economia' y 'medio-ambiente' se conservan en URLs y BD
+// (constraint articles_category_slug_check); solo cambia el nombre visible.
 export const categories: Category[] = [
-  { slug: 'economia', name: 'Economía', color: '#1a5276' },
-  { slug: 'medio-ambiente', name: 'Medio Ambiente', color: '#1e8449' },
+  { slug: 'personajes', name: 'Personajes', color: '#c0392b' },
+  { slug: 'educacion', name: 'Educación', color: '#ca6f1e' },
+  { slug: 'regiones', name: 'Regiones', color: '#922b21' },
+  { slug: 'economia', name: 'Emprendimiento', color: '#1a5276' },
   { slug: 'cultura', name: 'Cultura', color: '#6c3483' },
+  { slug: 'medio-ambiente', name: 'Turismo', color: '#1e8449' },
   { slug: 'deporte', name: 'Deporte', color: '#b7770d' },
   { slug: 'ciencia', name: 'Ciencia', color: '#148f77' },
-  { slug: 'regiones', name: 'Regiones', color: '#922b21' },
-  { slug: 'personajes', name: 'Personajes', color: '#c0392b' },
 ]
 
 export const breakingNewsFallback: string[] = [

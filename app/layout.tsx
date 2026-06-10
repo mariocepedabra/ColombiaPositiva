@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     default: "Solo Noticias Positivas",
   },
   description:
-    "Colombia Positiva es el periódico digital nacional que celebra los logros, avances y buenas noticias del país. Economía, Medio Ambiente, Cultura, Deporte, Ciencia y Regiones.",
+    "Colombia Positiva es el periódico digital nacional que celebra los logros, avances y buenas noticias del país. Personajes, Educación, Regiones, Emprendimiento, Cultura, Turismo, Deporte y Ciencia.",
   keywords: ["Colombia", "noticias positivas", "periódico", "buenas noticias"],
   openGraph: {
     title: "Solo Noticias Positivas",

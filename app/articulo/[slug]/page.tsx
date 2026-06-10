@@ -108,7 +108,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
         <article className="lg:col-span-2">
           {/* Breadcrumb */}
           <nav className="text-xs font-sans text-gris-400 mb-4 flex items-center gap-2">
-            <Link href="/" className="hover:text-verde transition-colors">Portada</Link>
+            <Link href="/" className="hover:text-verde transition-colors">Inicio</Link>
             <span>/</span>
             {category && (
               <>

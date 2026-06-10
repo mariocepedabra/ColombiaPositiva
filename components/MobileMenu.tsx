@@ -75,7 +75,7 @@ export default function MobileMenu() {
             <ul className="flex-1 overflow-y-auto">
               <li className="border-b border-gris-200">
                 <Link href="/" onClick={() => setOpen(false)} className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase text-tinta hover:bg-gris-100">
-                  Portada
+                  Inicio
                 </Link>
               </li>
               {categories.map((cat) => (

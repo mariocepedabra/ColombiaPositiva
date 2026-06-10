@@ -14,27 +14,28 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
+  // Las últimas 15 notas rotan en el carrusel de Noticias Principales
   const [recentArticles, ...categoryArticles] = await Promise.all([
-    getRecentArticles(5),
+    getRecentArticles(15),
     ...categories.map((cat) => getArticlesByCategory(cat.slug, 4)),
   ])
 
   const tickerItems =
     recentArticles.length > 0
-      ? recentArticles.map((a) => ({ title: a.title, slug: a.slug }))
+      ? recentArticles.slice(0, 5).map((a) => ({ title: a.title, slug: a.slug }))
       : breakingNewsFallback.map((title) => ({ title, slug: null }))
 
   return (
     <>
       <BreakingTicker items={tickerItems} />
 
-      {/* Sección de videos — "Historias de Colombia Positiva" */}
-      <VideoSection />
-
       <HeroSection articles={recentArticles} />
 
       {/* Las 10 historias más leídas */}
       <MostReadSection />
+
+      {/* Sección de videos — "Historias de Colombia Positiva" */}
+      <VideoSection />
 
       {/* Divisor ornamental */}
       <div className="max-w-7xl mx-auto px-4">
