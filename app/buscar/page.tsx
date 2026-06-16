@@ -31,12 +31,10 @@ export default async function BuscarPage({ searchParams }: Props) {
   if (query.length >= 2) {
     const supabase = await createClient()
     const { data } = await supabase
-      .from('articles')
-      .select('id, title, slug, excerpt, category_slug, image_url, author_name, published_at, read_time')
-      .eq('is_published', true)
-      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%`)
-      .order('published_at', { ascending: false })
-      .limit(20)
+      .rpc('search_articles_fuzzy', {
+        search_query: query,
+        result_limit: 20,
+      })
 
     results = data ?? []
   }
