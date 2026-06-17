@@ -93,9 +93,12 @@ function HeroSlide({ main, sideLeft1, sideLeft2, sideRight1, sideRight2, isFirst
 }
 
 export default function HeroSection({ articles }: Props) {
-  // Usar solo las primeras 6 noticias (o menos si hay menos de 6)
-  const topArticles = articles.slice(0, 6)
-  const total = topArticles.length
+  // Centro: rota entre las últimas 10 noticias
+  const centerArticles = articles.slice(0, 10)
+  const centerTotal = centerArticles.length
+
+  // Lados: fijos con las últimas 4 noticias
+  const sideArticles = articles.slice(0, 4)
 
   const [mainIndex, setMainIndex] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -105,7 +108,7 @@ export default function HeroSection({ articles }: Props) {
   // Pausar la rotación cuando la sección no está en pantalla o la pestaña está oculta
   useEffect(() => {
     const el = sectionRef.current
-    if (!el || total < 2) return
+    if (!el || centerTotal < 2) return
 
     const observer = new IntersectionObserver(
       ([entry]) => { inViewRef.current = entry.isIntersecting },
@@ -120,31 +123,29 @@ export default function HeroSection({ articles }: Props) {
       observer.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [total])
+  }, [centerTotal])
 
   // Rotación automática cada 10 s - solo rota el artículo central
   useEffect(() => {
-    if (total < 2 || paused) return
+    if (centerTotal < 2 || paused) return
     const t = setTimeout(() => {
       if (inViewRef.current && !document.hidden) {
-        setMainIndex((i) => (i + 1) % total)
+        setMainIndex((i) => (i + 1) % centerTotal)
       }
     }, ROTATE_MS)
     return () => clearTimeout(t)
-  }, [mainIndex, total, paused])
+  }, [mainIndex, centerTotal, paused])
 
-  if (topArticles.length === 0) return null
+  if (centerArticles.length === 0) return null
 
-  const main = topArticles[mainIndex]
-  // Artículos de los lados: los otros 5, rotando junto con el índice
-  const sideArticles = topArticles.filter((_, i) => i !== mainIndex)
+  const main = centerArticles[mainIndex]
   const sideLeft1 = sideArticles[0]
   const sideLeft2 = sideArticles[1]
   const sideRight1 = sideArticles[2]
   const sideRight2 = sideArticles[3]
 
-  const prev = () => setMainIndex((i) => (i - 1 + total) % total)
-  const next = () => setMainIndex((i) => (i + 1) % total)
+  const prev = () => setMainIndex((i) => (i - 1 + centerTotal) % centerTotal)
+  const next = () => setMainIndex((i) => (i + 1) % centerTotal)
 
   return (
     <section ref={sectionRef} className="max-w-7xl mx-auto px-4 py-6">
@@ -167,7 +168,7 @@ export default function HeroSection({ articles }: Props) {
         </div>
 
         {/* Flechas de navegación */}
-        {total > 1 && (
+        {centerTotal > 1 && (
           <>
             <button
               onClick={prev}
@@ -191,10 +192,10 @@ export default function HeroSection({ articles }: Props) {
         )}
       </div>
 
-      {/* Indicadores (dots) - muestra solo los puntos para el artículo central */}
-      {total > 1 && (
+      {/* Indicadores (dots) - muestra puntos para las 10 noticias del centro */}
+      {centerTotal > 1 && (
         <div className="flex justify-center gap-2 mt-4">
-          {topArticles.map((_, i) => (
+          {centerArticles.map((_, i) => (
             <button
               key={i}
               onClick={() => setMainIndex(i)}
