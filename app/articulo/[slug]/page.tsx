@@ -7,7 +7,7 @@ import { getArticleBySlug, getArticlesByCategory } from '@/lib/articles'
 import NewsCard from '@/components/NewsCard'
 import ArticleBodyWrapper from '@/components/ArticleBodyWrapper'
 import ViewTracker from '@/components/ViewTracker'
-import { createClient } from '@/lib/supabase/server'
+import { canUserCopy } from '@/lib/paywall'
 
 export const revalidate = 60
 
@@ -85,21 +85,8 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
     (a) => a.slug !== slug
   ).slice(0, 4)
 
-  // Determinar si el usuario puede copiar (solo Mario/admin)
-  let canCopy = false
-  try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      const { data: rpcData } = await supabase.rpc('get_my_profile')
-      if (Array.isArray(rpcData) && rpcData.length > 0) {
-        const profile = rpcData[0] as { role: string; full_name: string }
-        canCopy = profile.role === 'admin' || profile.full_name?.toLowerCase().includes('mario')
-      }
-    }
-  } catch {
-    canCopy = false
-  }
+  // Puede copiar el texto: admin/Mario o suscriptor con suscripción activa
+  const canCopy = await canUserCopy()
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

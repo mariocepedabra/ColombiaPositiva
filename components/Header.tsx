@@ -44,8 +44,17 @@ export default async function Header() {
         <div className="max-w-7xl mx-auto px-4 py-1.5 flex items-center justify-between text-xs text-gris-600 font-sans">
           <span className="capitalize">{today}</span>
           <div className="hidden sm:flex items-center gap-4">
-            {userDisplay && (
+            {userDisplay ? (
               <UserMenu name={userDisplay.name} role={userDisplay.role} />
+            ) : (
+              <>
+                <Link href="/suscripcion" className="font-600 text-verde hover:underline">
+                  Suscríbete
+                </Link>
+                <Link href="/ingresar" className="hover:text-verde transition-colors">
+                  Ingresar
+                </Link>
+              </>
             )}
           </div>
         </div>

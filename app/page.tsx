@@ -4,6 +4,7 @@ import VideoSection from '@/components/VideoSection'
 import HeroSection from '@/components/HeroSection'
 import CategorySection from '@/components/CategorySection'
 import MostReadSection from '@/components/MostReadSection'
+import AdZone from '@/components/AdZone'
 import { categories, breakingNewsFallback } from '@/lib/data'
 import { getRecentArticles, getArticlesByCategory } from '@/lib/articles'
 
@@ -29,13 +30,31 @@ export default async function HomePage() {
     <>
       <BreakingTicker items={tickerItems} />
 
+      {/* Zona de anuncios: arriba de Noticias Principales */}
+      <AdZone slot="noticias-top" />
+
       <HeroSection articles={recentArticles} />
+
+      {/* Zona de anuncios: abajo de Noticias Principales */}
+      <AdZone slot="noticias-bottom" />
+
+      {/* Zona de anuncios: arriba de Las 10 más leídas */}
+      <AdZone slot="masleidas-top" />
 
       {/* Las 10 historias más leídas */}
       <MostReadSection />
 
+      {/* Zona de anuncios: abajo de Las 10 más leídas */}
+      <AdZone slot="masleidas-bottom" />
+
+      {/* Zona de anuncios: arriba de Historias de Colombia Positiva */}
+      <AdZone slot="historias-top" />
+
       {/* Sección de videos — "Historias de Colombia Positiva" */}
       <VideoSection />
+
+      {/* Zona de anuncios: abajo de Historias de Colombia Positiva */}
+      <AdZone slot="historias-bottom" />
 
       {/* Divisor ornamental */}
       <div className="max-w-7xl mx-auto px-4">
@@ -45,6 +64,9 @@ export default async function HomePage() {
           <div className="flex-1 border-t border-gris-200" />
         </div>
       </div>
+
+      {/* Zona de anuncios: arriba de las secciones por categoría */}
+      <AdZone slot="categorias-top" />
 
       {categories.map((category, idx) => {
         const articles = categoryArticles[idx] ?? []
@@ -59,6 +81,12 @@ export default async function HomePage() {
           </div>
         )
       })}
+
+      {/* Zona de anuncios: abajo de las secciones por categoría */}
+      <AdZone slot="categorias-bottom" />
+
+      {/* Zona de anuncios: pie de página (antes del footer global) */}
+      <AdZone slot="footer" />
     </>
   )
 }
