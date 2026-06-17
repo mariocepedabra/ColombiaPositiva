@@ -9,16 +9,7 @@ type Props = {
   articles: Article[]
 }
 
-const SLIDE_SIZE = 5
 const ROTATE_MS = 10_000
-
-function chunk(articles: Article[]): Article[][] {
-  const slides: Article[][] = []
-  for (let i = 0; i < articles.length; i += SLIDE_SIZE) {
-    slides.push(articles.slice(i, i + SLIDE_SIZE))
-  }
-  return slides
-}
 
 function SideArticle({ article, withBorder }: { article: Article; withBorder: boolean }) {
   const cat = categories.find((c) => c.slug === article.category)
@@ -48,18 +39,15 @@ function SideArticle({ article, withBorder }: { article: Article; withBorder: bo
   )
 }
 
-function HeroSlide({ articles, isFirst }: { articles: Article[]; isFirst: boolean }) {
-  const [main, second, third, fourth, fifth] = articles
-  if (!main) return null
-
+function HeroSlide({ main, sideLeft1, sideLeft2, sideRight1, sideRight2, isFirst }: { main: Article; sideLeft1: Article; sideLeft2: Article; sideRight1: Article; sideRight2: Article; isFirst: boolean }) {
   const mainCat = categories.find((c) => c.slug === main.category)
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border border-gris-200 bg-papel">
       {/* LEFT: artículos secundarios apilados */}
       <div className="hidden lg:flex lg:col-span-3 flex-col border-r border-gris-200">
-        {second && <SideArticle article={second} withBorder={!!third} />}
-        {third && <SideArticle article={third} withBorder={false} />}
+        <SideArticle article={sideLeft1} withBorder={true} />
+        <SideArticle article={sideLeft2} withBorder={false} />
       </div>
 
       {/* CENTER: artículo principal */}
@@ -97,18 +85,19 @@ function HeroSlide({ articles, isFirst }: { articles: Article[]; isFirst: boolea
 
       {/* RIGHT: cuarto y quinto artículo */}
       <div className="hidden lg:flex lg:col-span-3 flex-col">
-        {fourth && <SideArticle article={fourth} withBorder={!!fifth} />}
-        {fifth && <SideArticle article={fifth} withBorder={false} />}
+        <SideArticle article={sideRight1} withBorder={true} />
+        <SideArticle article={sideRight2} withBorder={false} />
       </div>
     </div>
   )
 }
 
 export default function HeroSection({ articles }: Props) {
-  const slides = chunk(articles)
-  const total = slides.length
+  // Usar solo las primeras 6 noticias (o menos si hay menos de 6)
+  const topArticles = articles.slice(0, 6)
+  const total = topArticles.length
 
-  const [index, setIndex] = useState(0)
+  const [mainIndex, setMainIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
   const inViewRef = useRef(true)
@@ -133,22 +122,29 @@ export default function HeroSection({ articles }: Props) {
     }
   }, [total])
 
-  // Rotación automática cada 10 s en bucle infinito.
-  // El timeout depende de `index`, así que navegar manualmente reinicia el conteo.
+  // Rotación automática cada 10 s - solo rota el artículo central
   useEffect(() => {
     if (total < 2 || paused) return
     const t = setTimeout(() => {
       if (inViewRef.current && !document.hidden) {
-        setIndex((i) => (i + 1) % total)
+        setMainIndex((i) => (i + 1) % total)
       }
     }, ROTATE_MS)
     return () => clearTimeout(t)
-  }, [index, total, paused])
+  }, [mainIndex, total, paused])
 
-  if (slides.length === 0) return null
+  if (topArticles.length === 0) return null
 
-  const prev = () => setIndex((i) => (i - 1 + total) % total)
-  const next = () => setIndex((i) => (i + 1) % total)
+  const main = topArticles[mainIndex]
+  // Artículos de los lados: los otros 5, rotando junto con el índice
+  const sideArticles = topArticles.filter((_, i) => i !== mainIndex)
+  const sideLeft1 = sideArticles[0]
+  const sideLeft2 = sideArticles[1]
+  const sideRight1 = sideArticles[2]
+  const sideRight2 = sideArticles[3]
+
+  const prev = () => setMainIndex((i) => (i - 1 + total) % total)
+  const next = () => setMainIndex((i) => (i + 1) % total)
 
   return (
     <section ref={sectionRef} className="max-w-7xl mx-auto px-4 py-6">
@@ -158,9 +154,16 @@ export default function HeroSection({ articles }: Props) {
       </div>
 
       <div className="relative">
-        {/* Solo se monta el grupo visible — las imágenes de los demás no se cargan */}
-        <div key={index} className="hero-fade-in">
-          <HeroSlide articles={slides[index]} isFirst={index === 0} />
+        {/* El componente rota solo el artículo central */}
+        <div key={mainIndex} className="hero-fade-in">
+          <HeroSlide
+            main={main}
+            sideLeft1={sideLeft1}
+            sideLeft2={sideLeft2}
+            sideRight1={sideRight1}
+            sideRight2={sideRight2}
+            isFirst={mainIndex === 0}
+          />
         </div>
 
         {/* Flechas de navegación */}
@@ -188,16 +191,16 @@ export default function HeroSection({ articles }: Props) {
         )}
       </div>
 
-      {/* Indicadores (dots) */}
+      {/* Indicadores (dots) - muestra solo los puntos para el artículo central */}
       {total > 1 && (
         <div className="flex justify-center gap-2 mt-4">
-          {slides.map((_, i) => (
+          {topArticles.map((_, i) => (
             <button
               key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Ir al grupo de noticias ${i + 1}`}
+              onClick={() => setMainIndex(i)}
+              aria-label={`Ir a la noticia ${i + 1}`}
               className={`transition-all rounded-full ${
-                i === index ? 'w-6 h-2 bg-verde' : 'w-2 h-2 bg-gris-300 hover:bg-gris-400'
+                i === mainIndex ? 'w-6 h-2 bg-verde' : 'w-2 h-2 bg-gris-300 hover:bg-gris-400'
               }`}
             />
           ))}

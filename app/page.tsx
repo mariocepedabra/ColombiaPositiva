@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  // Las últimas 15 notas rotan en el carrusel de Noticias Principales
+  // Las últimas 6 notas rotan en el carrusel de Noticias Principales
   const [recentArticles, ...categoryArticles] = await Promise.all([
-    getRecentArticles(15),
+    getRecentArticles(6),
     ...categories.map((cat) => getArticlesByCategory(cat.slug, 4)),
   ])
 
