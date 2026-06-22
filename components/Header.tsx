@@ -103,7 +103,7 @@ export default async function Header() {
       {/* Navegación de categorías */}
       <nav className="border-t-2 border-b border-tinta bg-tinta">
         <div className="max-w-7xl mx-auto px-4">
-          <ul className="hidden md:flex items-center justify-center">
+          <ul className="hidden md:flex flex-wrap items-center justify-center">
             <li>
               <Link href="/" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
                 Inicio

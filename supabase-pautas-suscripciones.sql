@@ -149,3 +149,26 @@ create policy settings_all_admin on public.site_settings
   for all to authenticated
   using (public.is_admin())
   with check (public.is_admin());
+
+-- ============================================================================
+-- 4. PERMISOS (GRANT)
+-- ----------------------------------------------------------------------------
+-- Supabase a veces NO asigna los privilegios por defecto a tablas nuevas, lo
+-- que produce "permission denied for table ...". Estos GRANT lo resuelven.
+-- La seguridad real la siguen aplicando las políticas RLS de arriba.
+-- ============================================================================
+grant usage on schema public to anon, authenticated, service_role;
+
+-- Pautas: anon solo lee (banners activos); el servidor (service_role) y admin escriben
+grant select on public.ad_submissions to anon;
+grant select, insert, update, delete on public.ad_submissions to authenticated, service_role;
+
+-- Suscripciones: gestionadas server-side (service_role) y por el propio usuario/admin
+grant select, insert, update, delete on public.subscriptions to authenticated, service_role;
+
+-- Configuración: solo admin (RLS) / service_role
+grant select, insert, update, delete on public.site_settings to authenticated, service_role;
+
+-- Funciones
+grant execute on function public.is_admin() to anon, authenticated, service_role;
+grant execute on function public.has_active_subscription() to anon, authenticated, service_role;

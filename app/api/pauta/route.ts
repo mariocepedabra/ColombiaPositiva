@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { AD_PRICE_PER_DAY } from '@/lib/ads'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -19,20 +20,12 @@ export async function POST(request: NextRequest) {
     const numDays = Math.max(1, parseInt(String(days), 10) || 1)
     const price = numDays * AD_PRICE_PER_DAY
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    if (!supabaseUrl || !anonKey) {
-      return NextResponse.json({ error: 'Configuración del servidor incompleta' }, { status: 500 })
-    }
-
-    const insertRes = await fetch(`${supabaseUrl}/rest/v1/ad_submissions`, {
-      method: 'POST',
-      headers: {
-        'apikey': anonKey,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation',
-      },
-      body: JSON.stringify({
+    // Inserción server-side con service role (devuelve el id de forma fiable
+    // y evita problemas de visibilidad RLS con la anon key)
+    const supabase = createAdminClient()
+    const { data: created, error: insertErr } = await supabase
+      .from('ad_submissions')
+      .insert({
         advertiser_name: advertiserName,
         company: company || null,
         email: email || null,
@@ -44,18 +37,16 @@ export async function POST(request: NextRequest) {
         price,
         status: 'pendiente',
         paid: false,
-      }),
-    })
+      })
+      .select('id')
+      .single()
 
-    if (!insertRes.ok) {
-      const errText = await insertRes.text()
-      console.error('[pauta] DB error:', insertRes.status, errText)
+    if (insertErr || !created) {
+      console.error('[pauta] DB error:', insertErr)
       return NextResponse.json({ error: 'Error al guardar la solicitud' }, { status: 500 })
     }
 
-    const rows = await insertRes.json()
-    const created = Array.isArray(rows) ? rows[0] : rows
-    const adId = created?.id as string | undefined
+    const adId = created.id as string | undefined
 
     // Notificar a Mario por email
     try {
