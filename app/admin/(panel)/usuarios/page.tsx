@@ -1,7 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { getAllProfiles } from '@/lib/articles'
+import { getActiveSubscriberIds, getUserEmails } from '@/lib/admin-data'
 import { redirect } from 'next/navigation'
 import { updateUserRole } from '../../actions'
+
+export const dynamic = 'force-dynamic'
 
 export default async function UsuariosPage() {
   const supabase = await createClient()
@@ -19,7 +22,15 @@ export default async function UsuariosPage() {
 
   if (myRole !== 'admin') redirect('/admin')
 
-  const profiles = await getAllProfiles(session?.access_token)
+  const [profiles, activeSubs, emails] = await Promise.all([
+    getAllProfiles(session?.access_token),
+    getActiveSubscriberIds(),
+    getUserEmails(),
+  ])
+
+  // ¿Este usuario puede copiar el texto de las notas?
+  const canCopy = (p: { id: string; role: string; full_name: string }) =>
+    p.role === 'admin' || p.full_name?.toLowerCase().includes('mario') || activeSubs.has(p.id)
 
   return (
     <div>
@@ -30,9 +41,10 @@ export default async function UsuariosPage() {
 
       <div className="bg-white border border-gris-200">
         <div className="hidden md:grid grid-cols-12 gap-4 px-4 py-3 border-b border-gris-200 bg-gris-100">
-          <div className="col-span-4 font-sans text-xs uppercase tracking-widest text-gris-400">Nombre</div>
-          <div className="col-span-3 font-sans text-xs uppercase tracking-widest text-gris-400">Rol actual</div>
-          <div className="col-span-3 font-sans text-xs uppercase tracking-widest text-gris-400">Registro</div>
+          <div className="col-span-4 font-sans text-xs uppercase tracking-widest text-gris-400">Usuario</div>
+          <div className="col-span-2 font-sans text-xs uppercase tracking-widest text-gris-400">Rol actual</div>
+          <div className="col-span-2 font-sans text-xs uppercase tracking-widest text-gris-400">Puede copiar</div>
+          <div className="col-span-2 font-sans text-xs uppercase tracking-widest text-gris-400">Registro</div>
           <div className="col-span-2 font-sans text-xs uppercase tracking-widest text-gris-400">Cambiar rol</div>
         </div>
 
@@ -40,9 +52,9 @@ export default async function UsuariosPage() {
           <div key={profile.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 px-4 py-4 border-b border-gris-100 last:border-0 items-center">
             <div className="md:col-span-4">
               <p className="font-sans text-sm font-600 text-tinta">{profile.full_name || '(sin nombre)'}</p>
-              <p className="font-sans text-xs text-gris-400">{profile.id.slice(0, 8)}...</p>
+              <p className="font-sans text-xs text-gris-400">{emails.get(profile.id) ?? `${profile.id.slice(0, 8)}...`}</p>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <span className={`font-sans text-xs px-3 py-1 ${
                 profile.role === 'admin'
                   ? 'bg-verde text-white'
@@ -55,7 +67,14 @@ export default async function UsuariosPage() {
                   : 'Lector'}
               </span>
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
+              {canCopy(profile) ? (
+                <span className="font-sans text-xs px-3 py-1 bg-green-100 text-green-800 rounded">✓ Sí</span>
+              ) : (
+                <span className="font-sans text-xs px-3 py-1 bg-gris-100 text-gris-500 rounded">✗ No</span>
+              )}
+            </div>
+            <div className="md:col-span-2">
               <p className="font-sans text-xs text-gris-400">
                 {new Date(profile.created_at).toLocaleDateString('es-CO', {
                   year: 'numeric', month: 'short', day: 'numeric'

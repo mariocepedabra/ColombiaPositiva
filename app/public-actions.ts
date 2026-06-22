@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { buildCheckoutUrl } from '@/lib/gateway'
@@ -19,6 +20,45 @@ export async function signInPublic(formData: FormData): Promise<{ error?: string
   const { error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return { error: 'Correo o contraseña incorrectos.' }
   redirect('/')
+}
+
+// ---- Auth reutilizable (dropdown del header y página /ingresar) ----
+// No redirigen: devuelven el resultado para que el cliente refresque la vista.
+
+export async function authSignIn(formData: FormData): Promise<{ ok?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+  const password = formData.get('password') as string
+  if (!email || !password) return { error: 'Ingresa tu correo y contraseña.' }
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) return { error: 'Correo o contraseña incorrectos.' }
+  return { ok: true }
+}
+
+export async function authSignUp(formData: FormData): Promise<{ ok?: boolean; error?: string }> {
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+  const password = formData.get('password') as string
+  const fullName = (formData.get('full_name') as string) || ''
+  if (!email || !password) return { error: 'Ingresa tu correo y contraseña.' }
+  if (password.length < 6) return { error: 'La contraseña debe tener al menos 6 caracteres.' }
+
+  // Crear la cuenta confirmada con service role para poder ingresar de inmediato
+  const admin = createAdminClient()
+  const { error: createErr } = await admin.auth.admin.createUser({
+    email, password, email_confirm: true, user_metadata: { full_name: fullName },
+  })
+  if (createErr) {
+    if (/already.*registered|exists/i.test(createErr.message)) {
+      return { error: 'Ya existe una cuenta con ese correo. Inicia sesión.' }
+    }
+    return { error: createErr.message }
+  }
+
+  // Iniciar sesión con la cuenta recién creada
+  const supabase = await createClient()
+  const { error: signErr } = await supabase.auth.signInWithPassword({ email, password })
+  if (signErr) return { error: 'Cuenta creada, pero no se pudo iniciar sesión. Intenta ingresar.' }
+  return { ok: true }
 }
 
 async function siteOrigin(): Promise<string> {

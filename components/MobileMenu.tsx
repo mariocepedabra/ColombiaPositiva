@@ -99,6 +99,33 @@ export default function MobileMenu() {
                   ✦ Nota Positiva
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/pauta"
+                  onClick={() => setOpen(false)}
+                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] hover:bg-[rgb(0,96,57)] hover:text-[rgb(239,190,5)] transition-colors"
+                >
+                  ✦ Pauta Positiva
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/suscripcion"
+                  onClick={() => setOpen(false)}
+                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] hover:bg-[rgb(0,96,57)] hover:text-[rgb(239,190,5)] transition-colors"
+                >
+                  ✦ Suscríbete
+                </Link>
+              </li>
+              <li className="border-t border-gris-200">
+                <Link
+                  href="/ingresar"
+                  onClick={() => setOpen(false)}
+                  className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase text-verde hover:bg-gris-100 transition-colors"
+                >
+                  Iniciar sesión / Registro
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>

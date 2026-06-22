@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { categories } from '@/lib/data'
 import MobileMenu from './MobileMenu'
 import UserMenu from './UserMenu'
+import AuthMenu from './AuthMenu'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function Header() {
@@ -47,14 +48,7 @@ export default async function Header() {
             {userDisplay ? (
               <UserMenu name={userDisplay.name} role={userDisplay.role} />
             ) : (
-              <>
-                <Link href="/suscripcion" className="font-600 text-verde hover:underline">
-                  Suscríbete
-                </Link>
-                <Link href="/ingresar" className="hover:text-verde transition-colors">
-                  Ingresar
-                </Link>
-              </>
+              <AuthMenu />
             )}
           </div>
         </div>
@@ -125,6 +119,16 @@ export default async function Header() {
             <li>
               <Link href="/nota-positiva" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
                 ✦ Nota Positiva
+              </Link>
+            </li>
+            <li>
+              <Link href="/pauta" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
+                ✦ Pauta Positiva
+              </Link>
+            </li>
+            <li>
+              <Link href="/suscripcion" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
+                ✦ Suscríbete
               </Link>
             </li>
           </ul>
