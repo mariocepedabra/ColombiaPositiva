@@ -20,7 +20,7 @@ function isVigente(s: AdminSubscription): boolean {
   return new Date(s.end_date) >= new Date()
 }
 
-export default function SuscriptoresManager({ subscriptions }: { subscriptions: AdminSubscription[] }) {
+export default function SuscriptoresManager({ subscriptions, names }: { subscriptions: AdminSubscription[]; names: Record<string, string> }) {
   return (
     <div className="space-y-8">
       <GrantForm />
@@ -40,7 +40,7 @@ export default function SuscriptoresManager({ subscriptions }: { subscriptions: 
               <div className="col-span-2">Vence</div>
               <div className="col-span-2">Acción</div>
             </div>
-            {subscriptions.map((s) => <SubRow key={s.id} sub={s} />)}
+            {subscriptions.map((s) => <SubRow key={s.id} sub={s} name={s.user_id ? names[s.user_id] : ''} />)}
           </div>
         )}
       </div>
@@ -48,7 +48,7 @@ export default function SuscriptoresManager({ subscriptions }: { subscriptions: 
   )
 }
 
-function SubRow({ sub }: { sub: AdminSubscription }) {
+function SubRow({ sub, name }: { sub: AdminSubscription; name?: string }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const vigente = isVigente(sub)
@@ -61,7 +61,8 @@ function SubRow({ sub }: { sub: AdminSubscription }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-4 py-4 border-b border-gris-100 last:border-0 items-center">
       <div className="md:col-span-4">
-        <p className="font-sans text-sm font-600 text-tinta truncate">{sub.email || '(sin correo)'}</p>
+        <p className="font-sans text-sm font-600 text-tinta truncate">{name || '(sin nombre)'}</p>
+        <p className="font-sans text-xs text-gris-400 truncate">{sub.email || '(sin correo)'}</p>
         <span className={`inline-block font-sans text-[11px] px-2 py-0.5 rounded mt-1 ${STATUS_COLOR[sub.status] ?? 'bg-gris-200'}`}>
           {vigente ? 'Activa' : sub.status === 'activa' ? 'Vencida' : sub.status === 'pendiente_pago' ? 'Pendiente de pago' : sub.status === 'cancelada' ? 'Cancelada' : sub.status}
         </span>
@@ -106,8 +107,9 @@ function GrantForm() {
     <div className="bg-white border border-gris-200 p-6">
       <h2 className="font-heading font-700 text-lg text-tinta mb-1">Dar acceso gratis</h2>
       <p className="font-sans text-xs text-gris-500 mb-5">
-        Crea credenciales para que una persona pueda copiar el texto de las notas sin pagar.
-        El nombre es opcional; el correo y la contraseña son necesarios para ingresar.
+        Otorga a una persona el acceso para copiar el texto de las notas sin pagar.
+        Si el correo <strong>ya existe</strong> (incluso si hizo clic en pagar y no pagó), solo se le otorga el acceso.
+        Si es un correo <strong>nuevo</strong>, la contraseña es obligatoria para que pueda ingresar. El nombre es opcional.
       </p>
 
       {error && <div className="bg-red-50 border border-red-200 text-red-700 font-sans text-sm px-4 py-3 mb-4">{error}</div>}
@@ -120,8 +122,10 @@ function GrantForm() {
             className="w-full border border-gris-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-verde" placeholder="amigo@correo.com" />
         </div>
         <div>
-          <label className="block font-sans text-xs font-700 uppercase tracking-wider text-gris-600 mb-1.5">Contraseña *</label>
-          <input type="text" name="password" required minLength={6}
+          <label className="block font-sans text-xs font-700 uppercase tracking-wider text-gris-600 mb-1.5">
+            Contraseña <span className="font-400 normal-case tracking-normal">(solo si es correo nuevo)</span>
+          </label>
+          <input type="text" name="password" minLength={6}
             className="w-full border border-gris-300 px-3 py-2.5 text-sm font-sans focus:outline-none focus:border-verde" placeholder="Mínimo 6 caracteres" />
         </div>
         <div>

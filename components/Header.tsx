@@ -102,32 +102,32 @@ export default async function Header() {
 
       {/* Navegación de categorías */}
       <nav className="border-t-2 border-b border-tinta bg-tinta">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[1600px] mx-auto px-4">
           <ul className="hidden md:flex flex-wrap items-center justify-center">
             <li>
-              <Link href="/" className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
+              <Link href="/" className="block px-3 py-2.5 text-xs font-sans font-600 tracking-wide uppercase text-white/70 hover:text-white hover:bg-verde transition-all whitespace-nowrap">
                 Inicio
               </Link>
             </li>
             {categories.map((cat) => (
               <li key={cat.slug}>
-                <Link href={`/categoria/${cat.slug}`} className="block px-5 py-2.5 text-xs font-sans font-600 tracking-widest uppercase text-white/70 hover:text-white hover:bg-verde transition-all">
+                <Link href={`/categoria/${cat.slug}`} className="block px-3 py-2.5 text-xs font-sans font-600 tracking-wide uppercase text-white/70 hover:text-white hover:bg-verde transition-all whitespace-nowrap">
                   {cat.name}
                 </Link>
               </li>
             ))}
             <li>
-              <Link href="/nota-positiva" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
+              <Link href="/nota-positiva" className="nota-positiva-btn block px-3 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] whitespace-nowrap">
                 ✦ Nota Positiva
               </Link>
             </li>
             <li>
-              <Link href="/pauta" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
+              <Link href="/pauta" className="nota-positiva-btn block px-3 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] whitespace-nowrap">
                 ✦ Pauta Positiva
               </Link>
             </li>
             <li>
-              <Link href="/suscripcion" className="nota-positiva-btn block px-5 py-2.5 text-xs font-sans font-700 tracking-widest uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)]">
+              <Link href="/suscripcion" className="nota-positiva-btn block px-3 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] whitespace-nowrap">
                 ✦ Suscríbete
               </Link>
             </li>

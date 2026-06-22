@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getAllSubscriptions } from '@/lib/admin-data'
+import { getAllSubscriptions, getUserDirectory } from '@/lib/admin-data'
 import SuscriptoresManager from '@/components/admin/SuscriptoresManager'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +19,14 @@ export default async function SuscriptoresPage() {
 
   if (myRole !== 'admin') redirect('/admin')
 
-  const subscriptions = await getAllSubscriptions()
+  const [subscriptions, directory] = await Promise.all([
+    getAllSubscriptions(),
+    getUserDirectory(),
+  ])
+
+  // Mapa id → nombre para mostrar el nombre del suscriptor
+  const names: Record<string, string> = {}
+  for (const [id, entry] of directory) names[id] = entry.name
 
   return (
     <div>
@@ -29,7 +36,7 @@ export default async function SuscriptoresPage() {
           {subscriptions.length} suscripciones · permiten copiar el texto de las notas
         </p>
       </div>
-      <SuscriptoresManager subscriptions={subscriptions} />
+      <SuscriptoresManager subscriptions={subscriptions} names={names} />
     </div>
   )
 }

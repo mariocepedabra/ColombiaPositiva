@@ -79,3 +79,37 @@ export async function getUserEmails(): Promise<Map<string, string>> {
   }
   return map
 }
+
+export type DirectoryEntry = { id: string; email: string; name: string }
+
+// Directorio completo de usuarios (id → correo + nombre) desde auth.users.
+export async function getUserDirectory(): Promise<Map<string, DirectoryEntry>> {
+  const map = new Map<string, DirectoryEntry>()
+  try {
+    const supabase = createAdminClient()
+    const { data } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 })
+    for (const u of data?.users ?? []) {
+      const name = (u.user_metadata as Record<string, string> | null)?.full_name || ''
+      map.set(u.id, { id: u.id, email: u.email ?? '', name })
+    }
+  } catch (e) {
+    console.error('[getUserDirectory]', e)
+  }
+  return map
+}
+
+// Busca un usuario por correo. null si no existe.
+export async function findUserByEmail(email: string): Promise<{ id: string; name: string } | null> {
+  try {
+    const supabase = createAdminClient()
+    const { data } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 })
+    const target = email.trim().toLowerCase()
+    const found = data?.users.find((u) => u.email?.toLowerCase() === target)
+    if (!found) return null
+    const name = (found.user_metadata as Record<string, string> | null)?.full_name || ''
+    return { id: found.id, name }
+  } catch (e) {
+    console.error('[findUserByEmail]', e)
+    return null
+  }
+}

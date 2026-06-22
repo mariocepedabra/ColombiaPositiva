@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getAllProfiles } from '@/lib/articles'
 import { getActiveSubscriberIds, getUserEmails } from '@/lib/admin-data'
 import { redirect } from 'next/navigation'
-import { updateUserRole } from '../../actions'
+import { setUserAccess } from '@/app/admin/ads-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,6 +31,14 @@ export default async function UsuariosPage() {
   // ¿Este usuario puede copiar el texto de las notas?
   const canCopy = (p: { id: string; role: string; full_name: string }) =>
     p.role === 'admin' || p.full_name?.toLowerCase().includes('mario') || activeSubs.has(p.id)
+
+  // Acceso efectivo para el selector (Suscriptor = suscripción activa, role 'lector')
+  const accessValue = (p: { id: string; role: string }) => {
+    if (p.role === 'admin') return 'admin'
+    if (p.role === 'columnista') return 'columnista'
+    if (activeSubs.has(p.id)) return 'suscriptor'
+    return 'lector'
+  }
 
   return (
     <div>
@@ -85,15 +93,19 @@ export default async function UsuariosPage() {
               {profile.id !== user!.id && (
                 <form action={async (formData: FormData) => {
                   'use server'
-                  const role = formData.get('role') as string
-                  await updateUserRole(profile.id, role)
+                  const value = formData.get('role') as string
+                  const email = (formData.get('email') as string) || null
+                  await setUserAccess(formData.get('user_id') as string, email, value)
                 }}>
+                  <input type="hidden" name="user_id" value={profile.id} />
+                  <input type="hidden" name="email" value={emails.get(profile.id) ?? ''} />
                   <select
                     name="role"
-                    defaultValue={profile.role}
+                    defaultValue={accessValue(profile)}
                     className="w-full border border-gris-300 px-2 py-1.5 text-xs font-sans focus:outline-none focus:border-verde bg-white"
                   >
                     <option value="lector">Lector</option>
+                    <option value="suscriptor">Suscriptor</option>
                     <option value="columnista">Columnista</option>
                     <option value="admin">Admin</option>
                   </select>
