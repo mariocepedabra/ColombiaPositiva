@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getNotaPositivaSubmissions } from '@/lib/articles'
 import { redirect } from 'next/navigation'
+import DeleteNotaButton from '@/components/admin/DeleteNotaButton'
 
 export default async function NotasPositivasPage() {
   const supabase = await createClient()
@@ -81,13 +82,14 @@ export default async function NotasPositivasPage() {
                 </div>
               )}
 
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex flex-wrap items-center gap-3">
                 <a
                   href={`/admin/nuevo?titulo=${encodeURIComponent(s.title)}`}
                   className="font-sans text-xs bg-verde text-white px-4 py-1.5 hover:bg-verde-oscuro transition-colors"
                 >
                   Convertir en artículo →
                 </a>
+                <DeleteNotaButton id={s.id} title={s.title} />
               </div>
             </div>
           ))}

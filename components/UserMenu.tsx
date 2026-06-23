@@ -66,13 +66,14 @@ export default function UserMenu({ name, role }: Props) {
             </Link>
           )}
 
-          <button
+          <Link
+            href="/perfil"
             onClick={() => setOpen(false)}
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-sans text-gris-600 hover:bg-gris-100 hover:text-verde transition-colors text-left"
+            className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-sans text-gris-600 hover:bg-gris-100 hover:text-verde transition-colors"
           >
             <span className="text-sm">👤</span>
             <span>Mi perfil</span>
-          </button>
+          </Link>
 
           <div className="border-t border-gris-100" />
 

@@ -153,7 +153,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
           </div>
 
           {/* Rastreador de visitas (invisible) */}
-          <ViewTracker slug={article.slug} />
+          <ViewTracker slug={article.slug} title={article.title} />
 
           {/* Cuerpo */}
           <ArticleBodyWrapper canCopy={canCopy}>
