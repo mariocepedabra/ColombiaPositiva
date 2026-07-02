@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Video, VideoSectionKey } from '@/lib/videos'
 import { videoSectionKey } from '@/lib/videos'
+import { getVideoVisibility } from '@/lib/video-visibility'
 import PlatformVideoCarousel from './PlatformVideoCarousel'
 
 const DIVISIONS: { key: VideoSectionKey; name: string; color: string; iconPath: string }[] = [
@@ -39,7 +40,7 @@ async function getActiveVideos(): Promise<Video[]> {
 }
 
 export default async function VideoSection() {
-  const videos = await getActiveVideos()
+  const [videos, visibility] = await Promise.all([getActiveVideos(), getVideoVisibility()])
 
   // Agrupar por división según la URL del video
   const groups: Record<VideoSectionKey, Video[]> = { instagram: [], facebook: [], tiktok: [] }
@@ -48,7 +49,64 @@ export default async function VideoSection() {
     if (key) groups[key].push(video)
   }
 
-  if (DIVISIONS.every((d) => groups[d.key].length === 0)) return null
+  // Solo las divisiones activadas desde el panel (visibilidad)
+  const visibleDivisions = DIVISIONS.filter((d) => visibility[d.key])
+
+  // 0 activadas → la sección entera desaparece (incluido el título).
+  if (visibleDivisions.length === 0) return null
+  // Activadas pero sin ningún video → no mostrar una sección vacía.
+  if (visibleDivisions.every((d) => groups[d.key].length === 0)) return null
+
+  const count = visibleDivisions.length
+  // 1 red → 3 videos por pantalla; 2 o 3 redes → 1 video por división.
+  const perView = count === 1 ? 3 : 1
+
+  const renderDivision = (division: (typeof DIVISIONS)[number]) => (
+    <div key={division.key} className="flex flex-col">
+      {/* Cabecera de la división */}
+      <div className="flex items-center gap-2 mb-1">
+        <svg className="w-4 h-4" fill={division.color} viewBox="0 0 24 24" aria-hidden>
+          <path d={division.iconPath} />
+        </svg>
+        <h3
+          className="font-sans font-700 text-xs uppercase tracking-widest"
+          style={{ color: division.color }}
+        >
+          {division.name}
+        </h3>
+      </div>
+      <div className="h-0.5 w-full mb-4" style={{ backgroundColor: division.color }} />
+
+      {groups[division.key].length > 0 ? (
+        <PlatformVideoCarousel
+          videos={groups[division.key]}
+          platformName={division.name}
+          accentColor={division.color}
+          perView={perView}
+        />
+      ) : (
+        <div className="w-full max-w-[400px] mx-auto aspect-[9/16] border border-dashed border-gris-300 bg-gris-100 rounded-lg flex flex-col items-center justify-center gap-3 px-6 text-center">
+          <svg className="w-8 h-8 opacity-30" fill={division.color} viewBox="0 0 24 24" aria-hidden>
+            <path d={division.iconPath} />
+          </svg>
+          <p className="font-heading italic text-gris-400 text-sm">
+            Próximamente historias de {division.name}
+          </p>
+        </div>
+      )}
+    </div>
+  )
+
+  // Clases del contenedor según cuántas redes queden activas:
+  // 1 → ocupa toda la fila (una red, 3 videos por pantalla)
+  // 2 → dos columnas centradas, mismo tamaño, sin huecos grandes
+  // 3 → tres columnas (comportamiento original)
+  const gridClass =
+    count === 1
+      ? 'grid grid-cols-1'
+      : count === 2
+      ? 'grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[52rem] mx-auto'
+      : 'grid grid-cols-1 md:grid-cols-3 gap-6'
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
@@ -57,43 +115,7 @@ export default async function VideoSection() {
         <span>Historias de Colombia Positiva</span>
       </div>
 
-      {/* Tres divisiones: Instagram · Facebook · TikTok */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {DIVISIONS.map((division) => (
-          <div key={division.key} className="flex flex-col">
-            {/* Cabecera de la división */}
-            <div className="flex items-center gap-2 mb-1">
-              <svg className="w-4 h-4" fill={division.color} viewBox="0 0 24 24" aria-hidden>
-                <path d={division.iconPath} />
-              </svg>
-              <h3
-                className="font-sans font-700 text-xs uppercase tracking-widest"
-                style={{ color: division.color }}
-              >
-                {division.name}
-              </h3>
-            </div>
-            <div className="h-0.5 w-full mb-4" style={{ backgroundColor: division.color }} />
-
-            {groups[division.key].length > 0 ? (
-              <PlatformVideoCarousel
-                videos={groups[division.key]}
-                platformName={division.name}
-                accentColor={division.color}
-              />
-            ) : (
-              <div className="w-full aspect-[9/16] border border-dashed border-gris-300 bg-gris-100 rounded-lg flex flex-col items-center justify-center gap-3 px-6 text-center">
-                <svg className="w-8 h-8 opacity-30" fill={division.color} viewBox="0 0 24 24" aria-hidden>
-                  <path d={division.iconPath} />
-                </svg>
-                <p className="font-heading italic text-gris-400 text-sm">
-                  Próximamente historias de {division.name}
-                </p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+      <div className={gridClass}>{visibleDivisions.map(renderDivision)}</div>
     </section>
   )
 }

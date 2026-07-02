@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import VideoManager from '@/components/admin/VideoManager'
 import type { Video } from '@/lib/videos'
+import { getVideoVisibility } from '@/lib/video-visibility'
 
 export default async function VideosPage() {
   const supabase = await createClient()
@@ -22,5 +23,7 @@ export default async function VideosPage() {
     console.error('[VideosPage] exception:', err)
   }
 
-  return <VideoManager initialVideos={videos} />
+  const visibility = await getVideoVisibility()
+
+  return <VideoManager initialVideos={videos} initialVisibility={visibility} />
 }

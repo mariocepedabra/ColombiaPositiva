@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import type { Video, VideoSectionKey } from '@/lib/videos'
 import { platformLabel, detectPlatform, effectivePlatform, videoSectionKey } from '@/lib/videos'
+import type { VideoVisibility } from '@/lib/video-visibility'
+import { saveVideoVisibility } from '@/app/admin/videos-actions'
 
 type Tab = VideoSectionKey
 
@@ -41,7 +43,13 @@ const GROUPS: { key: Tab; name: string }[] = [
   { key: 'tiktok',    name: 'TikTok' },
 ]
 
-export default function VideoManager({ initialVideos }: { initialVideos: Video[] }) {
+export default function VideoManager({
+  initialVideos,
+  initialVisibility,
+}: {
+  initialVideos: Video[]
+  initialVisibility: VideoVisibility
+}) {
   const [videos, setVideos] = useState<Video[]>(initialVideos)
   const [tab, setTab]       = useState<Tab>('instagram')
   const [url, setUrl]       = useState('')
@@ -49,6 +57,8 @@ export default function VideoManager({ initialVideos }: { initialVideos: Video[]
   const [loading, setLoading]   = useState(false)
   const [error, setError]   = useState('')
   const [success, setSuccess] = useState('')
+  const [visibility, setVisibility] = useState<VideoVisibility>(initialVisibility)
+  const [savingPlatform, setSavingPlatform] = useState<VideoSectionKey | null>(null)
 
   function flash(msg: string, isError = false) {
     if (isError) { setError(msg); setTimeout(() => setError(''), 4000) }
@@ -106,6 +116,23 @@ export default function VideoManager({ initialVideos }: { initialVideos: Video[]
       if (!res.ok) throw new Error()
       setVideos((prev) => prev.map((v) => v.id === id ? { ...v, is_active: !current } : v))
     } catch { flash('Error al actualizar', true) }
+  }
+
+  // ── Mostrar/ocultar una red social en la portada ─────────────────
+  async function toggleVisibility(key: VideoSectionKey) {
+    const prev = visibility
+    const next = { ...visibility, [key]: !visibility[key] }
+    setVisibility(next)            // optimista
+    setSavingPlatform(key)
+    const res = await saveVideoVisibility(next)
+    setSavingPlatform(null)
+    if (res.error) {
+      setVisibility(prev)          // revertir si falla
+      flash(res.error || 'No se pudo actualizar la visibilidad', true)
+    } else {
+      const name = GROUPS.find((g) => g.key === key)?.name ?? ''
+      flash(next[key] ? `${name} se mostrará en la portada` : `${name} se ocultará de la portada`)
+    }
   }
 
   // Agrupar por división (la URL es la fuente de verdad)
@@ -173,14 +200,42 @@ export default function VideoManager({ initialVideos }: { initialVideos: Video[]
     )
   }
 
-  function renderGroup(name: string, list: Video[], note?: string) {
+  function renderGroup(name: string, list: Video[], opts?: { note?: string; platformKey?: VideoSectionKey }) {
+    const key = opts?.platformKey
+    const on = key ? visibility[key] : true
+    const saving = key ? savingPlatform === key : false
     return (
       <div className="bg-white border border-gris-200 mb-6">
-        <div className="px-4 py-3 border-b border-gris-200 bg-gris-100 flex items-center justify-between">
+        <div className="px-4 py-3 border-b border-gris-200 bg-gris-100 flex items-center justify-between gap-3">
           <h3 className="font-sans font-700 text-xs uppercase tracking-widest text-gris-600">
             {name} · {list.length} video{list.length !== 1 ? 's' : ''}
           </h3>
-          {note && <span className="font-sans text-xs text-gris-400 hidden sm:block">{note}</span>}
+          {key ? (
+            <div className="flex items-center gap-2.5">
+              <span className={`font-sans text-xs font-700 ${on ? 'text-verde' : 'text-gris-400'}`}>
+                {on ? 'Visible en portada' : 'Oculta en portada'}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={on}
+                aria-label={`${on ? 'Ocultar' : 'Mostrar'} ${name} en la portada`}
+                disabled={saving}
+                onClick={() => toggleVisibility(key)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${
+                  on ? 'bg-verde' : 'bg-gris-300'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform ${
+                    on ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          ) : opts?.note ? (
+            <span className="font-sans text-xs text-gris-400 hidden sm:block">{opts.note}</span>
+          ) : null}
         </div>
         {list.length === 0 ? (
           <div className="p-6 text-center">
@@ -272,12 +327,12 @@ export default function VideoManager({ initialVideos }: { initialVideos: Video[]
 
       {/* ── Listas por división ── */}
       {GROUPS.map((g) => (
-        <div key={g.key}>{renderGroup(g.name, grouped[g.key])}</div>
+        <div key={g.key}>{renderGroup(g.name, grouped[g.key], { platformKey: g.key })}</div>
       ))}
 
       {/* Videos legados (YouTube / archivos subidos) que ya no aparecen en la portada */}
       {otros.length > 0 &&
-        renderGroup('Otros videos', otros, 'YouTube y archivos — ya no se muestran en la portada')}
+        renderGroup('Otros videos', otros, { note: 'YouTube y archivos — ya no se muestran en la portada' })}
     </div>
   )
 }
