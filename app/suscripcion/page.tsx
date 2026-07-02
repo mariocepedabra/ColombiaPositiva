@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import PlanesSuscripcion from '@/components/PlanesSuscripcion'
 import { createClient } from '@/lib/supabase/server'
 import { getPublicSettings } from '@/lib/settings'
+import { getPricing } from '@/lib/pricing'
+import { buildPlans } from '@/lib/subscription'
 
 export const metadata: Metadata = {
   title: 'Suscríbete — Colombia Positiva',
-  description: 'Suscríbete a Colombia Positiva y copia el texto de nuestras notas. Planes desde $10.000 COP.',
+  description: 'Suscríbete a Colombia Positiva y copia el texto de nuestras notas. Elige el plan que prefieras.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -33,7 +35,8 @@ export default async function SuscripcionPage() {
     } catch { /* noop */ }
   }
 
-  const settings = await getPublicSettings()
+  const [settings, pricing] = await Promise.all([getPublicSettings(), getPricing()])
+  const plans = buildPlans(pricing)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
@@ -51,6 +54,7 @@ export default async function SuscripcionPage() {
         </div>
 
         <PlanesSuscripcion
+          plans={plans}
           loggedIn={!!user}
           userName={userName}
           alreadySubscribed={alreadySubscribed}

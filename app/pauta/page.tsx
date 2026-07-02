@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import PautaForm from '@/components/PautaForm'
 import { getPublicSettings } from '@/lib/settings'
+import { getPricing } from '@/lib/pricing'
 
 export const metadata: Metadata = {
   title: 'Pauta con nosotros — Colombia Positiva',
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function PautaPage() {
-  const settings = await getPublicSettings()
+  const [settings, pricing] = await Promise.all([getPublicSettings(), getPricing()])
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
@@ -36,6 +37,7 @@ export default async function PautaPage() {
             maxImageMb={settings.adMaxImageMb}
             maxVideoMb={settings.adMaxVideoMb}
             gatewayConfigured={settings.gatewayConfigured}
+            pricePerDay={pricing.adPerDay}
           />
         </div>
       </div>

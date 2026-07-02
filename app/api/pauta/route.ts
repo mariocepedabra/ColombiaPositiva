@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { AD_PRICE_PER_DAY } from '@/lib/ads'
+import { getPricing } from '@/lib/pricing'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     const numDays = Math.max(1, parseInt(String(days), 10) || 1)
-    const price = numDays * AD_PRICE_PER_DAY
+    const pricing = await getPricing()
+    const price = numDays * pricing.adPerDay
 
     // Inserción server-side con service role (devuelve el id de forma fiable
     // y evita problemas de visibilidad RLS con la anon key)

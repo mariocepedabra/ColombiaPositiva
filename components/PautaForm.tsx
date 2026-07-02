@@ -2,16 +2,16 @@
 
 import { useState, useRef } from 'react'
 import { getAdCheckoutUrl } from '@/app/public-actions'
-import { AD_PRICE_PER_DAY } from '@/lib/ads'
 import { createClient } from '@/lib/supabase/client'
 
 type Props = {
   maxImageMb: number
   maxVideoMb: number
   gatewayConfigured: boolean
+  pricePerDay: number
 }
 
-export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }: Props) {
+export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured, pricePerDay }: Props) {
   const [advertiserName, setAdvertiserName] = useState('')
   const [company, setCompany] = useState('')
   const [email, setEmail] = useState('')
@@ -32,7 +32,7 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }:
   const [paying, setPaying] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const total = days * AD_PRICE_PER_DAY
+  const total = days * pricePerDay
   const maxMb = kind === 'video' ? maxVideoMb : maxImageMb
 
   async function uploadFile(file: File) {
@@ -296,7 +296,7 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }:
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <label className="block font-sans text-xs font-700 uppercase tracking-wider text-gris-600 mb-1.5">¿Cuántos días deseas pautar? *</label>
-            <p className="font-sans text-xs text-gris-400 mb-2">Precio: ${AD_PRICE_PER_DAY.toLocaleString('es-CO')} COP por día. Sin mínimo de días.</p>
+            <p className="font-sans text-xs text-gris-400 mb-2">Precio: ${pricePerDay.toLocaleString('es-CO')} COP por día. Sin mínimo de días.</p>
             <div className="flex items-center">
               <button type="button" onClick={() => setDays((d) => Math.max(1, d - 1))}
                 className="w-11 h-11 border border-gris-300 text-tinta text-lg hover:bg-gris-100">−</button>
@@ -310,7 +310,7 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }:
           <div className="bg-verde text-white text-center px-8 py-4 w-full sm:w-auto">
             <p className="font-sans text-xs uppercase tracking-widest opacity-80">Total a pagar</p>
             <p className="font-heading font-900 text-2xl">${total.toLocaleString('es-CO')} COP</p>
-            <p className="font-sans text-xs opacity-80">{days} día(s) × ${AD_PRICE_PER_DAY.toLocaleString('es-CO')} COP</p>
+            <p className="font-sans text-xs opacity-80">{days} día(s) × ${pricePerDay.toLocaleString('es-CO')} COP</p>
           </div>
         </div>
       </div>

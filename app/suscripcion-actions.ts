@@ -2,7 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getPlan } from '@/lib/subscription'
+import { getPlanFromPricing } from '@/lib/subscription'
+import { getPricing } from '@/lib/pricing'
 import { getSubscriptionCheckoutUrl } from '@/app/public-actions'
 
 type Result = { url?: string; error?: string }
@@ -16,7 +17,8 @@ export async function startSubscriptionCheckout(formData: FormData): Promise<Res
   const password = formData.get('password') as string
   const fullName = (formData.get('full_name') as string) || ''
 
-  const plan = getPlan(planId)
+  const pricing = await getPricing()
+  const plan = getPlanFromPricing(pricing, planId)
   if (!plan) return { error: 'Plan no válido.' }
 
   const supabase = await createClient()

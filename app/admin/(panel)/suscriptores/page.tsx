@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { getAllSubscriptions, getUserDirectory } from '@/lib/admin-data'
 import SuscriptoresManager from '@/components/admin/SuscriptoresManager'
+import SubPriceEditor from '@/components/admin/SubPriceEditor'
+import { getPricing } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +21,10 @@ export default async function SuscriptoresPage() {
 
   if (myRole !== 'admin') redirect('/admin')
 
-  const [subscriptions, directory] = await Promise.all([
+  const [subscriptions, directory, pricing] = await Promise.all([
     getAllSubscriptions(),
     getUserDirectory(),
+    getPricing(),
   ])
 
   // Mapa id → nombre para mostrar el nombre del suscriptor
@@ -36,6 +39,7 @@ export default async function SuscriptoresPage() {
           {subscriptions.length} suscripciones · permiten copiar el texto de las notas
         </p>
       </div>
+      <SubPriceEditor initial={pricing} />
       <SuscriptoresManager subscriptions={subscriptions} names={names} />
     </div>
   )

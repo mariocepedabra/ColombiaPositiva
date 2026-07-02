@@ -1,17 +1,18 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { PLANS, formatCop, type PlanId } from '@/lib/subscription'
+import { formatCop, type PlanId, type Plan } from '@/lib/subscription'
 import { startSubscriptionCheckout } from '@/app/suscripcion-actions'
 
 type Props = {
+  plans: Plan[]
   loggedIn: boolean
   userName?: string
   alreadySubscribed: boolean
   gatewayConfigured: boolean
 }
 
-export default function PlanesSuscripcion({ loggedIn, userName, alreadySubscribed, gatewayConfigured }: Props) {
+export default function PlanesSuscripcion({ plans, loggedIn, userName, alreadySubscribed, gatewayConfigured }: Props) {
   const [selected, setSelected] = useState<PlanId | null>(null)
   const [mode, setMode] = useState<'login' | 'register'>('register')
   const [error, setError] = useState('')
@@ -49,7 +50,7 @@ export default function PlanesSuscripcion({ loggedIn, userName, alreadySubscribe
     <div>
       {/* Tarjetas de planes */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {PLANS.map((plan) => {
+        {plans.map((plan) => {
           const isSel = selected === plan.id
           return (
             <button
@@ -80,7 +81,7 @@ export default function PlanesSuscripcion({ loggedIn, userName, alreadySubscribe
         <div className="mt-8 bg-white border border-gris-200 p-6 md:p-8 max-w-lg mx-auto">
           <h3 className="font-heading font-700 text-xl text-tinta mb-1">Casi listo</h3>
           <p className="font-sans text-sm text-gris-600 mb-5">
-            Plan <strong>{PLANS.find((p) => p.id === selected)!.name}</strong> — {formatCop(PLANS.find((p) => p.id === selected)!.priceCop)}
+            Plan <strong>{plans.find((p) => p.id === selected)!.name}</strong> — {formatCop(plans.find((p) => p.id === selected)!.priceCop)}
           </p>
 
           {error && (

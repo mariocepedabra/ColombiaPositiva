@@ -7,7 +7,9 @@ import { getArticleBySlug, getArticlesByCategory } from '@/lib/articles'
 import NewsCard from '@/components/NewsCard'
 import ArticleBodyWrapper from '@/components/ArticleBodyWrapper'
 import ViewTracker from '@/components/ViewTracker'
+import ShareButtons from '@/components/ShareButtons'
 import { canUserCopy } from '@/lib/paywall'
+import { SITE_URL, articleUrl, cardImageUrl } from '@/lib/site'
 
 export const revalidate = 60
 
@@ -15,7 +17,29 @@ export async function generateMetadata(props: PageProps<'/articulo/[slug]'>): Pr
   const { slug } = await props.params
   const article = await getArticleBySlug(slug)
   if (!article) return {}
-  return { title: article.title, description: article.excerpt }
+  const url = articleUrl(slug)
+  const image = cardImageUrl(slug)
+  return {
+    title: article.title,
+    description: article.excerpt,
+    metadataBase: new URL(SITE_URL),
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      title: article.title,
+      description: article.excerpt,
+      url,
+      siteName: 'Colombia Positiva',
+      locale: 'es_CO',
+      images: [{ url: image, width: 1200, height: 630, alt: article.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+      images: [image],
+    },
+  }
 }
 
 function isHtmlContent(content: string): boolean {
@@ -165,22 +189,11 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
           </ArticleBodyWrapper>
 
           {/* Compartir */}
-          <div className="mt-8 pt-5 border-t border-gris-200 flex flex-wrap items-center gap-3">
-            <span className="font-sans text-xs font-700 uppercase tracking-wider text-gris-600">Compartir:</span>
-            {[
-              { label: 'Facebook', bg: '#1877F2' },
-              { label: 'X / Twitter', bg: '#006138' },
-              { label: 'WhatsApp', bg: '#25D366' },
-            ].map((s) => (
-              <button
-                key={s.label}
-                className="font-sans text-xs font-700 text-white px-4 py-1.5 uppercase tracking-wider hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: s.bg }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+          <ShareButtons
+            url={articleUrl(article.slug)}
+            title={article.title}
+            imageUrl={cardImageUrl(article.slug)}
+          />
         </article>
 
         {/* Sidebar */}
