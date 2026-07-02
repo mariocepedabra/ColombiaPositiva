@@ -62,7 +62,7 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }:
       // 2) Subimos el archivo directamente a Supabase Storage con la URL firmada.
       const supabase = createClient()
       const { error: uploadErr } = await supabase.storage
-        .from('article-images')
+        .from(data.bucket)
         .uploadToSignedUrl(data.path, data.token, file, { contentType: file.type })
       if (uploadErr) throw new Error(uploadErr.message || 'Error al subir el archivo')
 

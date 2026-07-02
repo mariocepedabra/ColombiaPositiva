@@ -86,13 +86,42 @@ export async function updateAdZonesForm(formData: FormData): Promise<void> {
 
 // ---------- CONFIGURACIÓN ----------
 
+// Sube (nunca baja) el límite de tamaño de un bucket para que admita el peso
+// máximo configurado en el panel. Solo eleva el techo: así los buckets que se
+// comparten con otras secciones (imágenes de artículos, videos editoriales)
+// nunca pierden capacidad. Conserva `public` y los tipos MIME del bucket.
+async function raiseBucketLimit(
+  admin: ReturnType<typeof createAdminClient>,
+  bucketId: string,
+  minMb: number
+): Promise<void> {
+  try {
+    const { data: bucket } = await admin.storage.getBucket(bucketId)
+    if (!bucket) return
+    const minBytes = minMb * 1024 * 1024
+    const current = bucket.file_size_limit ?? 0
+    if (current >= minBytes) return // ya admite ese tamaño; no tocar
+    const { error } = await admin.storage.updateBucket(bucketId, {
+      public: bucket.public,
+      allowedMimeTypes: bucket.allowed_mime_types,
+      fileSizeLimit: minBytes,
+    })
+    if (error) console.error(`[saveSettings] No se pudo ajustar el bucket ${bucketId}:`, error)
+  } catch (e) {
+    console.error(`[saveSettings] Error ajustando el bucket ${bucketId}:`, e)
+  }
+}
+
 export async function saveSettings(formData: FormData): Promise<{ error?: string; success?: boolean }> {
   if (!await isCurrentUserAdmin()) return { error: 'Sin permisos' }
   const admin = createAdminClient()
 
+  const maxImageMb = Math.max(1, parseInt(formData.get('ad_max_image_mb') as string) || 5)
+  const maxVideoMb = Math.max(1, parseInt(formData.get('ad_max_video_mb') as string) || 50)
+
   const payload: Record<string, unknown> = {
-    ad_max_image_mb: Math.max(1, parseInt(formData.get('ad_max_image_mb') as string) || 5),
-    ad_max_video_mb: Math.max(1, parseInt(formData.get('ad_max_video_mb') as string) || 50),
+    ad_max_image_mb: maxImageMb,
+    ad_max_video_mb: maxVideoMb,
     updated_at: new Date().toISOString(),
   }
 
@@ -105,6 +134,12 @@ export async function saveSettings(formData: FormData): Promise<{ error?: string
 
   const { error } = await admin.from('site_settings').update(payload).eq('id', 1)
   if (error) return { error: error.message }
+
+  // Mantener los límites de los buckets alineados con el panel: las imágenes de
+  // pauta van a "article-images" y los videos a "videos".
+  await raiseBucketLimit(admin, 'article-images', maxImageMb)
+  await raiseBucketLimit(admin, 'videos', maxVideoMb)
+
   revalidatePath('/admin/configuracion')
   revalidatePath('/pauta')
   revalidatePath('/suscripcion')

@@ -42,11 +42,15 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient()
+    // Cada tipo va al bucket que corresponde: las imágenes a "article-images" y
+    // los videos a "videos" (ese bucket admite formatos de video y tiene un
+    // límite de tamaño mayor). El navegador subirá el archivo directamente ahí.
+    const bucket = isVideo ? 'videos' : 'article-images'
     const ext = filename.split('.').pop()?.toLowerCase() || (isVideo ? 'mp4' : 'jpg')
     const path = `pautas/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
     const { data, error } = await supabase.storage
-      .from('article-images')
+      .from(bucket)
       .createSignedUploadUrl(path)
 
     if (error || !data) {
@@ -55,13 +59,14 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: urlData } = supabase.storage
-      .from('article-images')
+      .from(bucket)
       .getPublicUrl(data.path)
 
     return NextResponse.json({
       path: data.path,
       token: data.token,
       publicUrl: urlData.publicUrl,
+      bucket,
       contentType,
     })
   } catch (error) {
