@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { getAdCheckoutUrl } from '@/app/public-actions'
 import { AD_PRICE_PER_DAY } from '@/lib/ads'
+import { createClient } from '@/lib/supabase/client'
 
 type Props = {
   maxImageMb: number
@@ -41,14 +42,31 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured }:
     }
     setUploading(true)
     setUploadError('')
-    const fd = new FormData()
-    fd.append('file', file)
-    fd.append('kind', kind)
     try {
-      const res = await fetch('/api/pauta/upload', { method: 'POST', body: fd })
+      // 1) Pedimos al servidor una URL firmada (petición pequeña, sin el archivo).
+      //    Así el archivo NO pasa por la función serverless y evitamos su límite
+      //    de tamaño; el peso máximo real lo define la configuración del panel.
+      const res = await fetch('/api/pauta/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kind,
+          filename: file.name,
+          contentType: file.type,
+          size: file.size,
+        }),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al subir el archivo')
-      setMediaUrl(data.url)
+
+      // 2) Subimos el archivo directamente a Supabase Storage con la URL firmada.
+      const supabase = createClient()
+      const { error: uploadErr } = await supabase.storage
+        .from('article-images')
+        .uploadToSignedUrl(data.path, data.token, file, { contentType: file.type })
+      if (uploadErr) throw new Error(uploadErr.message || 'Error al subir el archivo')
+
+      setMediaUrl(data.publicUrl)
     } catch (err: unknown) {
       setUploadError(err instanceof Error ? err.message : 'Error al subir el archivo')
     } finally {
