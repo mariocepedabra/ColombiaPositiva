@@ -64,7 +64,7 @@ export default function VisitedNotes() {
               href={`/articulo/${n.slug}`}
               className="flex items-start justify-between gap-3 py-2.5 group"
             >
-              <span className="font-heading text-sm text-titulo group-hover:text-verde transition-colors leading-snug">
+              <span className="font-heading text-sm text-tinta group-hover:text-titulo transition-colors leading-snug">
                 {n.title}
               </span>
               <span className="font-sans text-[11px] text-gris-400 whitespace-nowrap mt-0.5">

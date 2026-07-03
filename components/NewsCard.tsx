@@ -32,7 +32,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
             </span>
           )}
           <Link href={`/articulo/${article.slug}`}>
-            <h3 className="font-heading font-700 text-titulo text-sm leading-snug mt-0.5 line-clamp-3 group-hover:text-verde transition-colors">
+            <h3 className="font-heading font-700 text-tinta text-sm leading-snug mt-0.5 line-clamp-3 group-hover:text-titulo transition-colors">
               {article.title}
             </h3>
           </Link>
@@ -53,7 +53,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
           </span>
         )}
         <Link href={`/articulo/${article.slug}`}>
-          <h3 className="font-heading font-600 text-titulo text-sm leading-snug mt-0.5 line-clamp-2 group-hover:text-verde transition-colors">
+          <h3 className="font-heading font-600 text-tinta text-sm leading-snug mt-0.5 line-clamp-2 group-hover:text-titulo transition-colors">
             {article.title}
           </h3>
         </Link>
@@ -83,7 +83,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
           </span>
         )}
         <Link href={`/articulo/${article.slug}`} className="flex-1">
-          <h3 className="font-heading font-700 text-titulo text-base leading-snug mb-2 line-clamp-3 group-hover:text-verde transition-colors">
+          <h3 className="font-heading font-700 text-tinta text-base leading-snug mb-2 line-clamp-3 group-hover:text-titulo transition-colors">
             {article.title}
           </h3>
           <p className="text-gris-600 font-sans text-sm leading-relaxed line-clamp-2">

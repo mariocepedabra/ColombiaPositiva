@@ -142,7 +142,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
           )}
 
           {/* Titular */}
-          <h1 className="font-heading font-900 text-3xl md:text-5xl text-titulo leading-tight mt-2 mb-4">
+          <h1 className="font-heading font-900 text-3xl md:text-5xl text-tinta leading-tight mt-2 mb-4 hover:text-titulo transition-colors">
             {article.title}
           </h1>
 

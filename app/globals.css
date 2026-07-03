@@ -7,7 +7,7 @@
   --color-verde-claro: #d6e4f2;
   --color-tinta: #013262;
   --color-tinta-suave: #2e2e2e;
-  --color-titulo: #5dd721;
+  --color-titulo: #31c303;
   --color-papel: #fafaf8;
   --color-papel-oscuro: #f0ede6;
 
@@ -125,6 +125,28 @@ html { scroll-behavior: smooth; }
 *:focus-visible {
   outline: 2px solid #013262;
   outline-offset: 2px;
+}
+
+/* Footer — degradé sutil que sigue el cursor (interactivo) */
+.footer-interactive {
+  --mx: 50%;
+  --my: 50%;
+}
+.footer-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    520px circle at var(--mx) var(--my),
+    rgba(255, 224, 1, 0.42) 0%,
+    rgba(51, 196, 2, 0.30) 38%,
+    rgba(1, 50, 98, 0) 72%
+  );
+}
+.footer-interactive:hover .footer-glow {
+  opacity: 1;
 }
 
 /* Print-like body text */

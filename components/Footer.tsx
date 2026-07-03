@@ -2,12 +2,13 @@ import Link from "next/link";
 import Image from "next/image";
 import logoFooter from "@/public/logo-footer.png";
 import { categories } from "@/lib/data";
+import FooterInteractive from "./FooterInteractive";
 
 export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-tinta text-white mt-10">
+    <FooterInteractive>
       {/* Main footer */}
       <div className="max-w-7xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -85,6 +86,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </FooterInteractive>
   );
 }
