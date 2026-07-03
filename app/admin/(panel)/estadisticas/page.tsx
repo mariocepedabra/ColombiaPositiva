@@ -144,7 +144,7 @@ export default async function EstadisticasPage() {
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${pct}%`,
-                        backgroundColor: isTop3 ? 'rgb(239,190,5)' : 'rgb(0,96,57)',
+                        backgroundColor: isTop3 ? 'rgb(239,190,5)' : 'rgb(1,50,98)',
                       }}
                     />
                   </div>

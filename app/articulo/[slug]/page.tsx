@@ -148,7 +148,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
 
           {/* Subtítulo / excerpt */}
           <p className="font-heading italic text-gris-600 text-lg md:text-xl leading-relaxed mb-5 border-l-4 pl-4"
-            style={{ borderColor: category?.color ?? '#006039' }}>
+            style={{ borderColor: category?.color ?? '#013262' }}>
             {article.excerpt}
           </p>
 

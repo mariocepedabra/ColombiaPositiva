@@ -9,7 +9,7 @@ import { getCategoryBySlug } from '@/lib/data'
 export const contentType = 'image/png'
 const WIDTH = 1200
 const HEIGHT = 630
-const VERDE = '#006039'
+const VERDE = '#013262'
 const ORO = '#efbe05'
 
 function truncate(text: string, max: number): string {

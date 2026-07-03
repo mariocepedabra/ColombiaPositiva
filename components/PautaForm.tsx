@@ -257,7 +257,7 @@ export default function PautaForm({ maxImageMb, maxVideoMb, gatewayConfigured, p
               <img src={mediaUrl} alt="Vista previa del banner" className="w-full max-h-64 object-contain" />
             )}
             <button type="button" onClick={() => setMediaUrl('')}
-              className="absolute top-2 right-2 bg-[#006138]/70 text-white font-sans text-xs px-2 py-1 hover:bg-[#006138]/90 transition-colors">
+              className="absolute top-2 right-2 bg-[#013262]/70 text-white font-sans text-xs px-2 py-1 hover:bg-[#013262]/90 transition-colors">
               Quitar
             </button>
           </div>

@@ -99,7 +99,7 @@ export default function ShareButtons({ url, title, imageUrl }: Props) {
           {copied ? '✓ Copiado' : '🔗 Copiar enlace'}
         </button>
 
-        <button onClick={nativeShare} className={`${btnBase} text-white`} style={{ backgroundColor: '#006039' }}>
+        <button onClick={nativeShare} className={`${btnBase} text-white`} style={{ backgroundColor: '#013262' }}>
           ↗ Compartir
         </button>
 

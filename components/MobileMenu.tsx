@@ -37,7 +37,7 @@ export default function MobileMenu() {
       {/* Overlay — FUERA del div con transform para que fixed funcione correctamente */}
       {open && (
         <div
-          className="fixed inset-0 z-50 bg-[#006138]/60"
+          className="fixed inset-0 z-50 bg-[#013262]/60"
           onClick={() => setOpen(false)}
         >
           <nav
@@ -94,7 +94,7 @@ export default function MobileMenu() {
                 <Link
                   href="/nota-positiva"
                   onClick={() => setOpen(false)}
-                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] hover:bg-[rgb(0,96,57)] hover:text-[rgb(239,190,5)] transition-colors"
+                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] hover:bg-[rgb(1,50,98)] hover:text-[rgb(239,190,5)] transition-colors"
                 >
                   ✦ Nota Positiva
                 </Link>
@@ -103,7 +103,7 @@ export default function MobileMenu() {
                 <Link
                   href="/pauta"
                   onClick={() => setOpen(false)}
-                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] hover:bg-[rgb(0,96,57)] hover:text-[rgb(239,190,5)] transition-colors"
+                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] hover:bg-[rgb(1,50,98)] hover:text-[rgb(239,190,5)] transition-colors"
                 >
                   ✦ Pauta Positiva
                 </Link>
@@ -112,7 +112,7 @@ export default function MobileMenu() {
                 <Link
                   href="/suscripcion"
                   onClick={() => setOpen(false)}
-                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(0,96,57)] hover:bg-[rgb(0,96,57)] hover:text-[rgb(239,190,5)] transition-colors"
+                  className="block px-5 py-3.5 text-sm font-sans font-700 tracking-wider uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] hover:bg-[rgb(1,50,98)] hover:text-[rgb(239,190,5)] transition-colors"
                 >
                   ✦ Suscríbete
                 </Link>

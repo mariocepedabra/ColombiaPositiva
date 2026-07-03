@@ -239,7 +239,7 @@ export default function NotaPositivaForm() {
             <button
               type="button"
               onClick={() => { setImageUrl(''); setImageError('') }}
-              className="absolute top-2 right-2 bg-[#006138]/70 text-white font-sans text-xs px-2 py-1 hover:bg-[#006138]/90 transition-colors"
+              className="absolute top-2 right-2 bg-[#013262]/70 text-white font-sans text-xs px-2 py-1 hover:bg-[#013262]/90 transition-colors"
             >
               Quitar imagen
             </button>

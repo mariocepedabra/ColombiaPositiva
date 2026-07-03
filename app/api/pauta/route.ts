@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         subject: `📢 Nueva solicitud de pauta — ${company || advertiserName}`,
         html: `
           <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; color: #1c1c1c;">
-            <div style="background: #006039; padding: 24px; text-align: center;">
+            <div style="background: #013262; padding: 24px; text-align: center;">
               <h1 style="color: white; margin: 0; font-size: 22px;">Colombia Positiva</h1>
               <p style="color: rgba(255,255,255,0.8); margin: 4px 0 0; font-size: 13px; font-style: italic;">Nueva solicitud de pauta publicitaria</p>
             </div>
@@ -70,10 +70,10 @@ export async function POST(request: NextRequest) {
                 ${email ? `<tr><td style="font-size:12px;font-family:sans-serif;font-weight:bold;text-transform:uppercase;color:#9a9a90;padding:8px 0;border-top:1px solid #e8e8e4;">Correo</td><td style="font-size:14px;font-family:sans-serif;padding:8px 0;border-top:1px solid #e8e8e4;">${email}</td></tr>` : ''}
                 ${phone ? `<tr><td style="font-size:12px;font-family:sans-serif;font-weight:bold;text-transform:uppercase;color:#9a9a90;padding:8px 0;border-top:1px solid #e8e8e4;">Teléfono</td><td style="font-size:14px;font-family:sans-serif;padding:8px 0;border-top:1px solid #e8e8e4;">${phone}</td></tr>` : ''}
                 <tr><td style="font-size:12px;font-family:sans-serif;font-weight:bold;text-transform:uppercase;color:#9a9a90;padding:8px 0;border-top:1px solid #e8e8e4;">Duración</td><td style="font-size:14px;font-family:sans-serif;padding:8px 0;border-top:1px solid #e8e8e4;">${numDays} día(s) — $${price.toLocaleString('es-CO')} COP</td></tr>
-                <tr><td style="font-size:12px;font-family:sans-serif;font-weight:bold;text-transform:uppercase;color:#9a9a90;padding:8px 0;border-top:1px solid #e8e8e4;">${mediaType === 'video' ? 'Video' : 'Imagen'}</td><td style="font-size:14px;font-family:sans-serif;padding:8px 0;border-top:1px solid #e8e8e4;"><a href="${mediaUrl}" style="color:#006039;word-break:break-all;">Ver banner</a></td></tr>
+                <tr><td style="font-size:12px;font-family:sans-serif;font-weight:bold;text-transform:uppercase;color:#9a9a90;padding:8px 0;border-top:1px solid #e8e8e4;">${mediaType === 'video' ? 'Video' : 'Imagen'}</td><td style="font-size:14px;font-family:sans-serif;padding:8px 0;border-top:1px solid #e8e8e4;"><a href="${mediaUrl}" style="color:#013262;word-break:break-all;">Ver banner</a></td></tr>
               </table>
               <div style="margin-top: 32px; text-align: center;">
-                <a href="https://colombiapositiva.com/admin/pautas" style="display:inline-block;background:#006039;color:white;font-family:sans-serif;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:2px;padding:12px 24px;text-decoration:none;">Revisar en el panel →</a>
+                <a href="https://colombiapositiva.com/admin/pautas" style="display:inline-block;background:#013262;color:white;font-family:sans-serif;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:2px;padding:12px 24px;text-decoration:none;">Revisar en el panel →</a>
               </div>
             </div>
           </div>

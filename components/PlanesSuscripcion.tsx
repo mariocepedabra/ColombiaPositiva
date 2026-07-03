@@ -61,7 +61,7 @@ export default function PlanesSuscripcion({ plans, loggedIn, userName, alreadySu
               }`}
             >
               {plan.popular && (
-                <span className="absolute -top-2.5 left-5 bg-[rgb(239,190,5)] text-[rgb(0,96,57)] font-sans font-700 text-[10px] uppercase tracking-wider px-2 py-0.5">
+                <span className="absolute -top-2.5 left-5 bg-[rgb(239,190,5)] text-[rgb(1,50,98)] font-sans font-700 text-[10px] uppercase tracking-wider px-2 py-0.5">
                   Más popular
                 </span>
               )}
