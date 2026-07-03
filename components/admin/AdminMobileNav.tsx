@@ -27,7 +27,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
   return (
     <>
       {/* Barra superior móvil */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[rgb(48,193,3)] text-white flex items-center justify-between px-4 py-3 border-b border-white/10">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[rgb(2,76,77)] text-white flex items-center justify-between px-4 py-3 border-b border-white/10">
         <Link href="/" className="font-heading font-700 text-base text-verde">
           Colombia Positiva
         </Link>
@@ -52,7 +52,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
       {open && (
         <div className="fixed inset-0 z-50 md:hidden bg-black/60" onClick={() => setOpen(false)}>
           <div
-            className="absolute top-0 left-0 h-full w-72 bg-[rgb(48,193,3)] text-white flex flex-col"
+            className="absolute top-0 left-0 h-full w-72 bg-[rgb(2,76,77)] text-white flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 border-b border-white/10">

@@ -16,7 +16,7 @@ export default function AdminNav({ profile, userEmail }: Props) {
     pathname === href || (href !== '/admin' && pathname.startsWith(href))
 
   return (
-    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-[rgb(48,193,3)] text-white z-30">
+    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-[rgb(2,76,77)] text-white z-30">
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <Link href="/" className="block">
