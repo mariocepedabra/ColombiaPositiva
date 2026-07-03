@@ -16,7 +16,7 @@ export default function AdminNav({ profile, userEmail }: Props) {
     pathname === href || (href !== '/admin' && pathname.startsWith(href))
 
   return (
-    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-tinta text-white z-30">
+    <aside className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-[rgb(48,193,3)] text-white z-30">
       {/* Logo */}
       <div className="p-6 border-b border-white/10">
         <Link href="/" className="block">
@@ -80,7 +80,7 @@ function NavItem({ href, label, icon, active }: { href: string; label: string; i
     <Link
       href={href}
       className={`flex items-center gap-3 px-6 py-3 font-sans text-sm transition-colors ${
-        active ? 'bg-verde text-white' : 'text-white/70 hover:text-white hover:bg-white/5'
+        active ? 'bg-[rgb(1,50,98)] text-white' : 'text-white/80 hover:text-white hover:bg-[rgb(1,50,98)]'
       }`}
     >
       <span>{icon}</span>
