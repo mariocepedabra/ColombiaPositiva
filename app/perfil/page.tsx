@@ -113,7 +113,7 @@ export default async function PerfilPage() {
             <ul className="divide-y divide-gris-100 max-h-80 overflow-y-auto">
               {notas.map((n) => (
                 <li key={n.id} className="flex items-start justify-between gap-3 py-2.5">
-                  <span className="font-heading text-sm text-tinta leading-snug">{n.title}</span>
+                  <span className="font-heading text-sm text-titulo leading-snug">{n.title}</span>
                   <span className="font-sans text-[11px] text-gris-400 whitespace-nowrap mt-0.5">
                     {fmtDate(n.created_at)}
                   </span>

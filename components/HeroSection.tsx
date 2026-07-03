@@ -30,7 +30,7 @@ function SideArticle({ article, withBorder }: { article: Article; withBorder: bo
         </span>
       )}
       <Link href={`/articulo/${article.slug}`}>
-        <h3 className="font-heading font-700 text-tinta text-sm leading-snug line-clamp-4 group-hover:text-verde transition-colors">
+        <h3 className="font-heading font-700 text-titulo text-sm leading-snug line-clamp-4 group-hover:text-verde transition-colors">
           {article.title}
         </h3>
       </Link>
@@ -60,7 +60,7 @@ function MainArticle({ article, isFirst }: { article: Article; isFirst: boolean 
           </span>
         )}
         <Link href={`/articulo/${article.slug}`} className="group flex-1">
-          <h2 className="font-heading font-900 text-tinta text-2xl md:text-3xl leading-tight mb-3 group-hover:text-verde transition-colors line-clamp-3">
+          <h2 className="font-heading font-900 text-titulo text-2xl md:text-3xl leading-tight mb-3 group-hover:text-verde transition-colors line-clamp-3">
             {article.title}
           </h2>
         </Link>

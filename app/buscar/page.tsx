@@ -123,7 +123,7 @@ export default async function BuscarPage({ searchParams }: Props) {
                       </Link>
                     )}
                     <Link href={`/articulo/${article.slug}`}>
-                      <h2 className="font-heading font-700 text-tinta text-lg leading-snug mt-0.5 mb-1 hover:text-verde transition-colors">
+                      <h2 className="font-heading font-700 text-titulo text-lg leading-snug mt-0.5 mb-1 hover:text-verde transition-colors">
                         {article.title}
                       </h2>
                     </Link>

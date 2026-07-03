@@ -64,7 +64,7 @@ export default async function MostReadSection() {
                     {category.name}
                   </span>
                 )}
-                <h3 className="font-heading font-700 text-sm text-tinta leading-snug group-hover:text-verde transition-colors line-clamp-2">
+                <h3 className="font-heading font-700 text-sm text-titulo leading-snug group-hover:text-verde transition-colors line-clamp-2">
                   {article.title}
                 </h3>
               </div>

@@ -122,17 +122,17 @@ export default async function Header() {
               </li>
             ))}
             <li>
-              <Link href="/nota-positiva" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] whitespace-nowrap">
+              <Link href="/nota-positiva" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(255,225,0)] text-[rgb(1,50,98)] whitespace-nowrap">
                 ✦ Nota Positiva
               </Link>
             </li>
             <li>
-              <Link href="/pauta" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] whitespace-nowrap">
+              <Link href="/pauta" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(255,225,0)] text-[rgb(1,50,98)] whitespace-nowrap">
                 ✦ Pauta Positiva
               </Link>
             </li>
             <li>
-              <Link href="/suscripcion" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(239,190,5)] text-[rgb(1,50,98)] whitespace-nowrap">
+              <Link href="/suscripcion" className="nota-positiva-btn block px-3 lg:px-4 xl:px-6 py-2.5 text-xs font-sans font-700 tracking-wide uppercase bg-[rgb(255,225,0)] text-[rgb(1,50,98)] whitespace-nowrap">
                 ✦ Suscríbete
               </Link>
             </li>

@@ -7,6 +7,7 @@
   --color-verde-claro: #d6e4f2;
   --color-tinta: #013262;
   --color-tinta-suave: #2e2e2e;
+  --color-titulo: #5dd721;
   --color-papel: #fafaf8;
   --color-papel-oscuro: #f0ede6;
 
@@ -109,13 +110,13 @@ html { scroll-behavior: smooth; }
 }
 .nota-positiva-btn:hover {
   background-color: rgb(1, 50, 98) !important;
-  color: rgb(239, 190, 5) !important;
+  color: rgb(255, 225, 0) !important;
   transform: scale(1.07) translateY(-2px);
-  box-shadow: 0 6px 22px rgba(239, 190, 5, 0.5);
+  box-shadow: 0 6px 22px rgba(255, 225, 0, 0.5);
 }
 @keyframes nota-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(239,190,5,0.4); }
-  50%       { box-shadow: 0 0 20px rgba(239,190,5,0.9); }
+  0%, 100% { box-shadow: 0 0 8px rgba(255,225,0,0.4); }
+  50%       { box-shadow: 0 0 20px rgba(255,225,0,0.9); }
 }
 .nota-positiva-btn:hover {
   animation: nota-glow 1s ease-in-out infinite;
