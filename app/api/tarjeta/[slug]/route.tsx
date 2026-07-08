@@ -17,9 +17,31 @@ function truncate(text: string, max: number): string {
   return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t
 }
 
-export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
+// El User-Agent de WhatsApp contiene "WhatsApp" tanto en móvil como en Web.
+// Se evita cachear en CDN para que cada cliente reciba su variante correcta.
+const NO_CDN_CACHE = {
+  'Cache-Control': 'public, max-age=0, must-revalidate',
+  Vary: 'User-Agent',
+}
+
+export async function GET(req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const article = await getArticleBySlug(slug)
+
+  // WhatsApp descarga esta imagen al generar la vista previa del enlace.
+  // Para WhatsApp se entrega la imagen original de la nota (sin tarjeta);
+  // el resto de plataformas sigue recibiendo la imagen-tarjeta.
+  // Se redirige a la versión optimizada (/_next/image) porque WhatsApp
+  // descarta vistas previas con imágenes de más de ~600 KB.
+  const userAgent = req.headers.get('user-agent') ?? ''
+  if (article?.imageUrl && /whatsapp/i.test(userAgent)) {
+    const origin = new URL(req.url).origin
+    const optimized = `${origin}/_next/image?url=${encodeURIComponent(article.imageUrl)}&w=640&q=75`
+    return new Response(null, {
+      status: 302,
+      headers: { Location: optimized, ...NO_CDN_CACHE },
+    })
+  }
 
   if (!article) {
     return new ImageResponse(
@@ -28,7 +50,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
           Colombia Positiva
         </div>
       ),
-      { width: WIDTH, height: HEIGHT }
+      { width: WIDTH, height: HEIGHT, headers: NO_CDN_CACHE }
     )
   }
 
@@ -76,6 +98,6 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
         </div>
       </div>
     ),
-    { width: WIDTH, height: HEIGHT }
+    { width: WIDTH, height: HEIGHT, headers: NO_CDN_CACHE }
   )
 }
