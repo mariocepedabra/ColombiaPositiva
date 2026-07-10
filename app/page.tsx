@@ -47,15 +47,6 @@ export default async function HomePage() {
       {/* Zona de anuncios: abajo de Las 10 más leídas */}
       <AdZone slot="masleidas-bottom" />
 
-      {/* Zona de anuncios: arriba de Historias de Colombia Positiva */}
-      <AdZone slot="historias-top" />
-
-      {/* Sección de videos — "Historias de Colombia Positiva" */}
-      <VideoSection />
-
-      {/* Zona de anuncios: abajo de Historias de Colombia Positiva */}
-      <AdZone slot="historias-bottom" />
-
       {/* Divisor ornamental */}
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center gap-4 py-2">
@@ -84,6 +75,15 @@ export default async function HomePage() {
 
       {/* Zona de anuncios: abajo de las secciones por categoría */}
       <AdZone slot="categorias-bottom" />
+
+      {/* Zona de anuncios: arriba de Historias de Colombia Positiva */}
+      <AdZone slot="historias-top" />
+
+      {/* Sección de videos — "Historias de Colombia Positiva" (ubicada de última, antes del footer) */}
+      <VideoSection />
+
+      {/* Zona de anuncios: abajo de Historias de Colombia Positiva */}
+      <AdZone slot="historias-bottom" />
 
       {/* Zona de anuncios: pie de página (antes del footer global) */}
       <AdZone slot="footer" />

@@ -58,13 +58,6 @@ export default async function Header() {
 
       {/* Masthead */}
       <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col items-center text-center relative">
-        {/* Línea ornamental superior */}
-        <div className="w-full flex items-center gap-3 mb-4">
-          <div className="flex-1 border-t-2 border-tinta" />
-          <span className="text-gris-400 text-xs tracking-[0.3em] uppercase font-sans">Est. 2026</span>
-          <div className="flex-1 border-t-2 border-tinta" />
-        </div>
-
         <Link href="/" className="block" aria-label="Colombia Positiva — Inicio">
           <Image
             src={logoHeader}
