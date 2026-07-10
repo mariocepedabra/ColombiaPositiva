@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getAllArticlesAdmin } from '@/lib/articles'
+import { getAdminArticleCounts, getRecentAdminArticles } from '@/lib/articles'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
@@ -25,9 +25,12 @@ export default async function AdminDashboard() {
     }
   }
 
-  const articles = await getAllArticlesAdmin(session?.access_token)
-  const published = articles.filter((a) => a.is_published)
-  const drafts = articles.filter((a) => !a.is_published)
+  const isAdmin = profile?.role === 'admin'
+  const authorFilter = isAdmin ? undefined : user!.id
+  const [counts, recent] = await Promise.all([
+    getAdminArticleCounts(session?.access_token, authorFilter),
+    getRecentAdminArticles(session?.access_token, 5, authorFilter),
+  ])
 
   return (
     <div>
@@ -44,15 +47,15 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-white border border-gris-200 p-6">
           <p className="font-sans text-xs uppercase tracking-widest text-gris-400 mb-1">Total artículos</p>
-          <p className="font-heading font-700 text-4xl text-tinta">{articles.length}</p>
+          <p className="font-heading font-700 text-4xl text-tinta">{counts.total}</p>
         </div>
         <div className="bg-white border border-gris-200 p-6">
           <p className="font-sans text-xs uppercase tracking-widest text-gris-400 mb-1">Publicados</p>
-          <p className="font-heading font-700 text-4xl text-verde">{published.length}</p>
+          <p className="font-heading font-700 text-4xl text-verde">{counts.published}</p>
         </div>
         <div className="bg-white border border-gris-200 p-6">
           <p className="font-sans text-xs uppercase tracking-widest text-gris-400 mb-1">Borradores</p>
-          <p className="font-heading font-700 text-4xl text-tinta">{drafts.length}</p>
+          <p className="font-heading font-700 text-4xl text-tinta">{counts.drafts}</p>
         </div>
       </div>
 
@@ -105,13 +108,13 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Últimos artículos */}
-      {articles.length > 0 && (
+      {recent.length > 0 && (
         <div className="bg-white border border-gris-200 p-6">
           <h2 className="font-sans font-700 text-xs uppercase tracking-widest text-gris-600 mb-4">
             Últimos artículos
           </h2>
           <div className="space-y-3">
-            {articles.slice(0, 5).map((a) => (
+            {recent.map((a) => (
               <div key={a.id} className="flex items-center justify-between py-2 border-b border-gris-100 last:border-0">
                 <div>
                   <p className="font-sans text-sm text-tinta font-600 line-clamp-1">{a.title}</p>

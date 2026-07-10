@@ -56,14 +56,22 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* Zona de anuncios: arriba de las secciones por categoría */}
+      {/* Zona de anuncios: arriba de todas las secciones por categoría */}
       <AdZone slot="categorias-top" />
 
       {categories.map((category, idx) => {
         const articles = categoryArticles[idx] ?? []
+        if (articles.length === 0) return null
         return (
           <div key={category.slug}>
+            {/* Zona de anuncios: arriba de esta categoría */}
+            <AdZone slot={`cat-${category.slug}-top`} />
+
             <CategorySection category={category} articles={articles} />
+
+            {/* Zona de anuncios: abajo de esta categoría */}
+            <AdZone slot={`cat-${category.slug}-bottom`} />
+
             {idx < categories.length - 1 && (
               <div className="max-w-7xl mx-auto px-4">
                 <div className="border-t border-gris-200" />
@@ -73,7 +81,7 @@ export default async function HomePage() {
         )
       })}
 
-      {/* Zona de anuncios: abajo de las secciones por categoría */}
+      {/* Zona de anuncios: abajo de todas las secciones por categoría */}
       <AdZone slot="categorias-bottom" />
 
       {/* Zona de anuncios: arriba de Historias de Colombia Positiva */}

@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getAllArticlesAdmin } from '@/lib/articles'
+import { getArticlesByViewsAdmin, getAdminArticleCounts } from '@/lib/articles'
 import { categories } from '@/lib/data'
 import Link from 'next/link'
 
@@ -7,16 +7,16 @@ export default async function EstadisticasPage() {
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
 
-  const allArticles = await getAllArticlesAdmin(session?.access_token)
-
-  // Ordenar por view_count descendente
-  const articles = [...allArticles].sort(
-    (a, b) => (b.view_count ?? 0) - (a.view_count ?? 0)
-  )
+  // Top artículos por visitas (server-side). Como las notas sin visitas quedan
+  // al final, el top-200 captura todas las que tienen visitas registradas.
+  const [articles, counts] = await Promise.all([
+    getArticlesByViewsAdmin(session?.access_token, 200),
+    getAdminArticleCounts(session?.access_token),
+  ])
 
   const totalViews = articles.reduce((sum, a) => sum + (a.view_count ?? 0), 0)
   const maxViews = Math.max(...articles.map((a) => a.view_count ?? 0), 1)
-  const avgViews = articles.length > 0 ? Math.round(totalViews / articles.length) : 0
+  const avgViews = counts.total > 0 ? Math.round(totalViews / counts.total) : 0
   const topArticle = articles[0]
 
   return (

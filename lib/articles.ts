@@ -167,6 +167,124 @@ export async function getAllArticlesAdmin(accessToken?: string): Promise<DbArtic
   }
 }
 
+// ---- ADMIN: listado y conteos que superan el tope de 1000 filas de PostgREST ----
+
+// Fila liviana para la lista/tablas del panel (sin traer content/excerpt/image)
+export type AdminArticleRow = Pick<
+  DbArticle,
+  'id' | 'title' | 'slug' | 'author_name' | 'author_id' | 'category_slug'
+  | 'published_at' | 'is_published' | 'view_count' | 'created_at'
+>
+
+const ADMIN_LIST_FIELDS =
+  'id,title,slug,author_name,author_id,category_slug,published_at,is_published,view_count,created_at'
+
+function restBase(): { url?: string; anonKey?: string } {
+  return {
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    anonKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  }
+}
+
+// Conteos exactos vía header Content-Range (no descarga filas)
+export async function getAdminArticleCounts(
+  accessToken?: string,
+  authorId?: string,
+): Promise<{ total: number; published: number; drafts: number }> {
+  const { url, anonKey } = restBase()
+  if (!url || !anonKey || !accessToken) return { total: 0, published: 0, drafts: 0 }
+  const authFilter = authorId ? `&author_id=eq.${authorId}` : ''
+
+  async function count(extra: string): Promise<number> {
+    const res = await fetch(`${url}/rest/v1/articles?select=id${authFilter}${extra}`, {
+      headers: {
+        apikey: anonKey!,
+        Authorization: `Bearer ${accessToken}`,
+        Range: '0-0',
+        Prefer: 'count=exact',
+      },
+      cache: 'no-store',
+    })
+    const cr = res.headers.get('content-range') // "0-0/1234"
+    const n = cr ? parseInt(cr.split('/')[1], 10) : NaN
+    return Number.isNaN(n) ? 0 : n
+  }
+
+  const total = await count('')
+  const published = await count('&is_published=eq.true')
+  return { total, published, drafts: total - published }
+}
+
+// Lista COMPLETA para el panel — pagina por offset hasta traer todas las filas
+export async function getAdminArticleList(
+  accessToken?: string,
+  authorId?: string,
+): Promise<AdminArticleRow[]> {
+  const { url, anonKey } = restBase()
+  if (!url || !anonKey || !accessToken) return []
+  const authFilter = authorId ? `&author_id=eq.${authorId}` : ''
+  const PAGE = 1000
+  const out: AdminArticleRow[] = []
+  try {
+    for (let offset = 0; ; offset += PAGE) {
+      const res = await fetch(
+        `${url}/rest/v1/articles?select=${ADMIN_LIST_FIELDS}${authFilter}&order=created_at.desc&offset=${offset}&limit=${PAGE}`,
+        {
+          headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` },
+          cache: 'no-store',
+        },
+      )
+      if (!res.ok) {
+        console.error('[getAdminArticleList]', res.status, await res.text())
+        break
+      }
+      const rows = (await res.json()) as AdminArticleRow[]
+      if (!Array.isArray(rows) || rows.length === 0) break
+      out.push(...rows)
+      if (rows.length < PAGE) break
+    }
+  } catch (e) {
+    console.error('[getAdminArticleList] excepción:', e)
+  }
+  return out
+}
+
+// Artículos más recientes para el dashboard (liviano)
+export async function getRecentAdminArticles(
+  accessToken?: string,
+  limit = 5,
+  authorId?: string,
+): Promise<AdminArticleRow[]> {
+  const { url, anonKey } = restBase()
+  if (!url || !anonKey || !accessToken) return []
+  const authFilter = authorId ? `&author_id=eq.${authorId}` : ''
+  const res = await fetch(
+    `${url}/rest/v1/articles?select=${ADMIN_LIST_FIELDS}${authFilter}&order=created_at.desc&limit=${limit}`,
+    { headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` }, cache: 'no-store' },
+  )
+  if (!res.ok) return []
+  const rows = await res.json()
+  return Array.isArray(rows) ? rows : []
+}
+
+// Top artículos por visitas para la página de estadísticas (server-side, ordenado)
+export async function getArticlesByViewsAdmin(
+  accessToken?: string,
+  limit = 200,
+  authorId?: string,
+): Promise<AdminArticleRow[]> {
+  const { url, anonKey } = restBase()
+  if (!url || !anonKey || !accessToken) return []
+  const authFilter = authorId ? `&author_id=eq.${authorId}` : ''
+  const res = await fetch(
+    `${url}/rest/v1/articles?select=${ADMIN_LIST_FIELDS}${authFilter}&order=view_count.desc.nullslast&limit=${limit}`,
+    { headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` }, cache: 'no-store' },
+  )
+  if (!res.ok) return []
+  const rows = await res.json()
+  return Array.isArray(rows) ? rows : []
+}
+
 // Artículo por ID para edición — usa session token
 export async function getArticleById(id: string, accessToken?: string): Promise<DbArticle | null> {
   try {

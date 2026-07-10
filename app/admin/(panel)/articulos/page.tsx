@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getAllArticlesAdmin } from '@/lib/articles'
+import { getAdminArticleList } from '@/lib/articles'
 import Link from 'next/link'
 import ArticulosList from '@/components/admin/ArticulosList'
 
@@ -16,10 +16,12 @@ export default async function ArticulosPage() {
     }
   } catch { /* usar app_metadata */ }
 
-  const allArticles = await getAllArticlesAdmin(session?.access_token)
-  const articles = myRole === 'admin'
-    ? allArticles
-    : allArticles.filter((a) => a.author_id === user!.id)
+  // Lista completa (pagina más allá del tope de 1000 de PostgREST).
+  // Los columnistas solo ven sus propios artículos.
+  const articles = await getAdminArticleList(
+    session?.access_token,
+    myRole === 'admin' ? undefined : user!.id,
+  )
 
   return (
     <div>
