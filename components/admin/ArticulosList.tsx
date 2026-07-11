@@ -19,6 +19,8 @@ export default function ArticulosList({ articles }: Props) {
   // 'all' = Inicio (todas las secciones)
   const [filter, setFilter] = useState<string>('all')
   const [query, setQuery] = useState('')
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
   const [visible, setVisible] = useState(PAGE_SIZE)
 
   // Conteo por categoría para mostrar en cada chip
@@ -30,12 +32,20 @@ export default function ArticulosList({ articles }: Props) {
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim())
+    // Rango de fechas (inclusive). El input date da 'YYYY-MM-DD'.
+    const fromTs = fromDate ? new Date(fromDate + 'T00:00:00').getTime() : null
+    const toTs = toDate ? new Date(toDate + 'T23:59:59').getTime() : null
     return articles.filter((a) => {
       if (filter !== 'all' && a.category_slug !== filter) return false
       if (q && !normalize(a.title).includes(q) && !normalize(a.author_name).includes(q)) return false
+      if (fromTs || toTs) {
+        const t = new Date(a.published_at).getTime()
+        if (fromTs && t < fromTs) return false
+        if (toTs && t > toTs) return false
+      }
       return true
     })
-  }, [articles, filter, query])
+  }, [articles, filter, query, fromDate, toDate])
 
   const shown = filtered.slice(0, visible)
 
@@ -43,6 +53,8 @@ export default function ArticulosList({ articles }: Props) {
     setFilter(next)
     setVisible(PAGE_SIZE)
   }
+
+  const hasDateFilter = fromDate || toDate
 
   return (
     <div>
@@ -66,21 +78,53 @@ export default function ArticulosList({ articles }: Props) {
         ))}
       </div>
 
-      {/* Búsqueda */}
-      <div className="mb-3">
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setVisible(PAGE_SIZE) }}
-          placeholder="Buscar por título o autor…"
-          className="w-full sm:w-96 border border-gris-300 bg-white py-2 px-3 text-sm font-sans focus:outline-none focus:border-verde"
-        />
+      {/* Búsqueda + filtro por fecha */}
+      <div className="flex flex-col md:flex-row md:items-end gap-3 mb-3">
+        <div className="flex-1">
+          <label className="block font-sans text-xs uppercase tracking-wider text-gris-400 mb-1">Buscar</label>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setVisible(PAGE_SIZE) }}
+            placeholder="Buscar por título o autor…"
+            className="w-full border border-gris-300 bg-white py-2 px-3 text-sm font-sans focus:outline-none focus:border-verde"
+          />
+        </div>
+        <div>
+          <label className="block font-sans text-xs uppercase tracking-wider text-gris-400 mb-1">Desde</label>
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(e) => { setFromDate(e.target.value); setVisible(PAGE_SIZE) }}
+            className="border border-gris-300 bg-white py-2 px-3 text-sm font-sans focus:outline-none focus:border-verde"
+          />
+        </div>
+        <div>
+          <label className="block font-sans text-xs uppercase tracking-wider text-gris-400 mb-1">Hasta</label>
+          <input
+            type="date"
+            value={toDate}
+            onChange={(e) => { setToDate(e.target.value); setVisible(PAGE_SIZE) }}
+            className="border border-gris-300 bg-white py-2 px-3 text-sm font-sans focus:outline-none focus:border-verde"
+          />
+        </div>
+        {(hasDateFilter || query) && (
+          <button
+            type="button"
+            onClick={() => { setQuery(''); setFromDate(''); setToDate(''); setVisible(PAGE_SIZE) }}
+            className="font-sans text-xs text-gris-500 underline hover:text-verde py-2"
+          >
+            Limpiar
+          </button>
+        )}
       </div>
 
       <p className="font-sans text-sm text-gris-600 mb-4">
         {filtered.length} {filtered.length === 1 ? 'artículo' : 'artículos'}
         {filter !== 'all' && ' en esta sección'}
         {query && ' que coinciden con la búsqueda'}
+        {hasDateFilter && ' en el rango de fechas'}
+        {' '}· ordenados del más nuevo al más antiguo
       </p>
 
       {filtered.length === 0 ? (

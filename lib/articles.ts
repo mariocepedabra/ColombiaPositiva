@@ -228,7 +228,8 @@ export async function getAdminArticleList(
   try {
     for (let offset = 0; ; offset += PAGE) {
       const res = await fetch(
-        `${url}/rest/v1/articles?select=${ADMIN_LIST_FIELDS}${authFilter}&order=created_at.desc&offset=${offset}&limit=${PAGE}`,
+        // Orden: de la más nueva a la más antigua (por fecha de publicación)
+        `${url}/rest/v1/articles?select=${ADMIN_LIST_FIELDS}${authFilter}&order=published_at.desc&offset=${offset}&limit=${PAGE}`,
         {
           headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` },
           cache: 'no-store',
