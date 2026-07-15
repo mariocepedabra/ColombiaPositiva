@@ -11,11 +11,14 @@ export default async function MostReadSection() {
     <section className="max-w-7xl mx-auto px-4 py-8">
       {/* Título de sección */}
       <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1 border-t-2 border-tinta" />
-        <h2 className="font-sans font-700 text-xs uppercase tracking-[0.25em] text-tinta whitespace-nowrap">
+        <div className="flex-1 border-t-2" style={{ borderColor: 'rgb(62, 205, 6)' }} />
+        <h2
+          className="font-sans font-700 text-xs uppercase tracking-[0.25em] whitespace-nowrap"
+          style={{ color: 'rgb(255, 223, 0)' }}
+        >
           ★ Las 10 historias más leídas
         </h2>
-        <div className="flex-1 border-t-2 border-tinta" />
+        <div className="flex-1 border-t-2" style={{ borderColor: 'rgb(62, 205, 6)' }} />
       </div>
 
       {/* Grid de 2 columnas */}

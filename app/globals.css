@@ -75,14 +75,14 @@
 .ornament::after {
   content: '';
   flex: 1;
-  border-top: 1px solid #d0cfc8;
+  border-top: 1px solid rgb(62, 205, 6);
 }
 
 .ornament {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: #9a9a90;
+  color: rgb(255, 223, 0);
   font-size: 0.7rem;
   letter-spacing: 0.15em;
 }

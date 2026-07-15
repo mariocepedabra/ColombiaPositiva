@@ -18,7 +18,7 @@ export default function CategorySection({ category, articles }: Props) {
       <div className="flex items-center justify-between mb-1">
         <h2
           className="font-sans font-700 text-xs uppercase tracking-widest"
-          style={{ color: category.color }}
+          style={{ color: 'rgb(255, 223, 0)' }}
         >
           {category.name}
         </h2>
@@ -31,7 +31,7 @@ export default function CategorySection({ category, articles }: Props) {
       </div>
 
       {/* Strong rule */}
-      <div className="h-0.5 w-full mb-4" style={{ backgroundColor: category.color }} />
+      <div className="h-0.5 w-full mb-4" style={{ backgroundColor: 'rgb(62, 205, 6)' }} />
 
       {/* Layout: lead left + 3 horizontals right */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
