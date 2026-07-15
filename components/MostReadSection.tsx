@@ -13,8 +13,8 @@ export default async function MostReadSection() {
       <div className="flex items-center gap-4 mb-6">
         <div className="flex-1 border-t-2" style={{ borderColor: 'rgb(62, 205, 6)' }} />
         <h2
-          className="font-sans font-700 text-xs uppercase tracking-[0.25em] whitespace-nowrap"
-          style={{ color: 'rgb(255, 223, 0)' }}
+          className="section-title-hover font-sans font-700 text-xs uppercase tracking-[0.25em] whitespace-nowrap"
+          style={{ color: 'rgb(1, 50, 98)' }}
         >
           ★ Las 10 historias más leídas
         </h2>

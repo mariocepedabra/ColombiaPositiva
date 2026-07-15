@@ -82,9 +82,24 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  color: rgb(255, 223, 0);
+  color: rgb(1, 50, 98);
   font-size: 0.7rem;
   letter-spacing: 0.15em;
+}
+
+/* Realce al pasar el cursor sobre los títulos de sección:
+   suben un poco y crecen ~2 pt para destacarse, con transición suave.
+   El transform no refluye el layout, así que las líneas no se mueven. */
+.ornament span,
+.section-title-hover {
+  display: inline-block;
+  transition: transform 0.2s ease, text-shadow 0.2s ease;
+  will-change: transform;
+}
+.ornament span:hover,
+.section-title-hover:hover {
+  transform: translateY(-2px) scale(1.15);
+  text-shadow: 0 2px 6px rgba(1, 50, 98, 0.22);
 }
 
 html { scroll-behavior: smooth; }

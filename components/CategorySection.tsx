@@ -17,8 +17,8 @@ export default function CategorySection({ category, articles }: Props) {
       {/* Section header */}
       <div className="flex items-center justify-between mb-1">
         <h2
-          className="font-sans font-700 text-xs uppercase tracking-widest"
-          style={{ color: 'rgb(255, 223, 0)' }}
+          className="section-title-hover font-sans font-700 text-xs uppercase tracking-widest"
+          style={{ color: 'rgb(1, 50, 98)' }}
         >
           {category.name}
         </h2>
