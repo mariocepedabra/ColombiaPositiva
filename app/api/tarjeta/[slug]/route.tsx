@@ -79,7 +79,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
 
           {/* Categoría + titular + resumen */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', fontSize: 22, fontWeight: 700, color: category?.color ?? VERDE, letterSpacing: 2, marginBottom: 16 }}>
+            <div style={{ display: 'flex', fontSize: 22, fontWeight: 700, color: VERDE, letterSpacing: 2, marginBottom: 16 }}>
               {(category?.name ?? 'Noticias').toUpperCase()}
             </div>
             <div style={{ display: 'flex', fontSize: 46, fontWeight: 800, color: '#1c1c1c', lineHeight: 1.15 }}>

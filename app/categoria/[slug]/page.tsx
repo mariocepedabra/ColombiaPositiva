@@ -51,7 +51,7 @@ export default async function CategoryPage(props: PageProps<'/categoria/[slug]'>
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header de sección */}
       <div className="mb-6">
-        <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: category.color }}>
+        <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: 'rgb(1, 50, 98)' }}>
           Sección
         </span>
         <h1 className="font-heading font-900 text-4xl md:text-5xl text-tinta mt-1 mb-1">

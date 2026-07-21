@@ -123,7 +123,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
             <span>/</span>
             {category && (
               <>
-                <Link href={`/categoria/${category.slug}`} className="hover:text-verde transition-colors" style={{ color: category.color }}>
+                <Link href={`/categoria/${category.slug}`} className="hover:text-verde transition-colors" style={{ color: 'rgb(1, 50, 98)' }}>
                   {category.name}
                 </Link>
                 <span>/</span>
@@ -135,7 +135,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
           {/* Categoría */}
           {category && (
             <Link href={`/categoria/${category.slug}`}>
-              <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: category.color }}>
+              <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: 'rgb(1, 50, 98)' }}>
                 {category.name}
               </span>
             </Link>
@@ -202,7 +202,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
             {/* Más en categoría */}
             {related.length > 0 && (
               <div className="mb-6">
-                <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: category?.color }}>
+                <span className="font-sans font-700 text-xs uppercase tracking-widest" style={{ color: 'rgb(1, 50, 98)' }}>
                   Más en {category?.name}
                 </span>
                 <div className="h-0.5 w-full mt-1 mb-3" style={{ backgroundColor: category?.color }} />

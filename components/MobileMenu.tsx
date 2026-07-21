@@ -84,7 +84,7 @@ export default function MobileMenu() {
                     href={`/categoria/${cat.slug}`}
                     onClick={() => setOpen(false)}
                     className="block px-5 py-3.5 text-sm font-sans font-600 tracking-wider uppercase hover:bg-gris-100"
-                    style={{ color: cat.color }}
+                    style={{ color: 'rgb(1, 50, 98)' }}
                   >
                     {cat.name}
                   </Link>

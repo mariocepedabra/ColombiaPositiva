@@ -153,7 +153,7 @@ export default function ArticulosList({ articles }: Props) {
                     <p className="font-sans text-xs text-gris-400 mt-0.5">{article.author_name}</p>
                   </div>
                   <div className="md:col-span-2">
-                    <span className="font-sans text-xs px-2 py-1" style={{ color: cat?.color, backgroundColor: (cat?.color ?? '#888') + '15' }}>
+                    <span className="font-sans text-xs px-2 py-1" style={{ color: 'rgb(1, 50, 98)', backgroundColor: (cat?.color ?? '#888') + '15' }}>
                       {cat?.name ?? article.category_slug}
                     </span>
                   </div>

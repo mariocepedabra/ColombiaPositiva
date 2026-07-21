@@ -62,7 +62,7 @@ export default async function MostReadSection() {
                 {category && (
                   <span
                     className="font-sans font-700 text-xs uppercase tracking-widest block mb-0.5"
-                    style={{ color: category.color }}
+                    style={{ color: 'rgb(1, 50, 98)' }}
                   >
                     {category.name}
                   </span>

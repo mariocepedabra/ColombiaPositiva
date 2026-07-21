@@ -27,7 +27,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
         )}
         <div className="flex-1 min-w-0">
           {category && (
-            <span className="text-xs font-sans font-700 uppercase tracking-widest" style={{ color: category.color }}>
+            <span className="text-xs font-sans font-700 uppercase tracking-widest" style={{ color: 'rgb(1, 50, 98)' }}>
               {category.name}
             </span>
           )}
@@ -48,7 +48,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
     return (
       <article className="group py-3 border-b border-gris-200 last:border-0">
         {category && (
-          <span className="text-xs font-sans font-700 uppercase tracking-widest" style={{ color: category.color }}>
+          <span className="text-xs font-sans font-700 uppercase tracking-widest" style={{ color: 'rgb(1, 50, 98)' }}>
             {category.name}
           </span>
         )}
@@ -78,7 +78,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
       )}
       <div className="flex-1 pt-3 flex flex-col">
         {category && (
-          <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1.5" style={{ color: category.color }}>
+          <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1.5" style={{ color: 'rgb(1, 50, 98)' }}>
             {category.name}
           </span>
         )}

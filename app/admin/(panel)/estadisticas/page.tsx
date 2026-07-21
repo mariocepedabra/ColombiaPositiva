@@ -129,7 +129,7 @@ export default async function EstadisticasPage() {
                   <span
                     className="font-sans text-xs px-2 py-1"
                     style={{
-                      color: cat?.color,
+                      color: 'rgb(1, 50, 98)',
                       backgroundColor: cat ? cat.color + '20' : '#f5f5f3',
                     }}
                   >

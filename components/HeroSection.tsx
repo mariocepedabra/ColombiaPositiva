@@ -25,7 +25,7 @@ function SideArticle({ article, withBorder }: { article: Article; withBorder: bo
         />
       </div>
       {cat && (
-        <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1" style={{ color: cat.color }}>
+        <span className="text-xs font-sans font-700 uppercase tracking-widest mb-1" style={{ color: 'rgb(1, 50, 98)' }}>
           {cat.name}
         </span>
       )}
@@ -55,7 +55,7 @@ function MainArticle({ article, isFirst }: { article: Article; isFirst: boolean 
       </Link>
       <div className="p-5 flex-1 flex flex-col">
         {cat && (
-          <span className="text-xs font-sans font-700 uppercase tracking-widest mb-2" style={{ color: cat.color }}>
+          <span className="text-xs font-sans font-700 uppercase tracking-widest mb-2" style={{ color: 'rgb(1, 50, 98)' }}>
             {cat.name}
           </span>
         )}
