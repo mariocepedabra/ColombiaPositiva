@@ -63,6 +63,7 @@ export default async function Header() {
             src={logoHeader}
             alt="Colombia Positiva"
             priority
+            unoptimized
             className="h-16 md:h-24 w-auto mx-auto"
           />
         </Link>

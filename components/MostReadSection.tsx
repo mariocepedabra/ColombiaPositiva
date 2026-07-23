@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import ArticleImage from '@/components/ArticleImage'
 import { getTopArticles } from '@/lib/articles'
 import { getCategoryBySlug } from '@/lib/data'
 
@@ -48,7 +48,7 @@ export default async function MostReadSection() {
                 className="flex-shrink-0 relative overflow-hidden hidden sm:block"
                 style={{ width: 72, height: 54 }}
               >
-                <Image
+                <ArticleImage
                   src={article.imageUrl}
                   alt={article.title}
                   fill

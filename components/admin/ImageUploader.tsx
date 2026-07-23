@@ -128,7 +128,6 @@ export default function ImageUploader({ value, onChange }: Props) {
             alt="Vista previa"
             fill
             className="object-cover"
-            unoptimized={value.includes('picsum')}
           />
           <button
             type="button"

@@ -17,6 +17,7 @@ export default function Footer() {
             <Image
               src={logoFooter}
               alt="Colombia Positiva"
+              unoptimized
               className="h-12 md:h-14 w-auto mb-2"
             />
             <p className="font-heading italic text-white/50 text-sm mb-4">

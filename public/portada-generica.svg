@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Colombia Positiva">
+  <defs>
+    <linearGradient id="fondo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#013262"/>
+      <stop offset="100%" stop-color="#012443"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#fondo)"/>
+  <g opacity="0.07" fill="#ffffff">
+    <circle cx="150" cy="120" r="220"/>
+    <circle cx="1060" cy="540" r="260"/>
+  </g>
+  <g transform="translate(600 315)" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif">
+    <rect x="-26" y="-146" width="52" height="52" fill="#efbe05"/>
+    <text y="-24" fill="#ffffff" font-size="76" font-weight="700" letter-spacing="4">COLOMBIA</text>
+    <text y="62" fill="#efbe05" font-size="76" font-weight="700" letter-spacing="4">POSITIVA</text>
+    <rect x="-170" y="106" width="340" height="3" fill="#ffffff" opacity="0.35"/>
+    <text y="164" fill="#ffffff" opacity="0.75" font-family="Helvetica, Arial, sans-serif" font-size="26" letter-spacing="6">SOLO NOTICIAS POSITIVAS</text>
+  </g>
+</svg>

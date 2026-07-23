@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
+import ArticleImage from '@/components/ArticleImage'
 import { createClient } from '@/lib/supabase/server'
 import { getCategoryBySlug, formatDate } from '@/lib/data'
 
@@ -102,8 +102,8 @@ export default async function BuscarPage({ searchParams }: Props) {
                 <article key={article.id} className="py-5 flex gap-5">
                   {/* Imagen */}
                   <div className="flex-shrink-0 relative overflow-hidden hidden sm:block" style={{ width: 120, height: 80 }}>
-                    <Image
-                      src={article.image_url ?? `https://picsum.photos/seed/${article.slug}/400/300`}
+                    <ArticleImage
+                      src={article.image_url}
                       alt={article.title}
                       fill
                       sizes="120px"

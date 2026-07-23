@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { Article } from '@/lib/data'
+import { IMAGEN_RESPALDO } from '@/lib/imagenes'
 
 export type DbArticle = {
   id: string
@@ -37,7 +38,9 @@ function normalize(db: DbArticle): Article {
     author: db.author_name,
     publishedAt: db.published_at,
     readTime: db.read_time ?? 5,
-    imageUrl: db.image_url ?? `https://picsum.photos/seed/${db.slug}/800/600`,
+    // Sin foto propia va la portada genérica de la marca, no una imagen
+    // aleatoria de un banco de fotos ajeno a la noticia.
+    imageUrl: db.image_url?.trim() || IMAGEN_RESPALDO,
   }
 }
 

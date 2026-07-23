@@ -2,21 +2,12 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-      },
-      {
-        protocol: 'https',
-        hostname: 'hyyjxeafxccrbkxgnmcz.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'pagina10.com',
-      },
-    ],
+    // Optimizador propio (/api/imagen) en lugar de /_next/image: el de Vercel
+    // se quedó sin cuota de transformaciones y respondía 402, con lo que las
+    // notas cuya variante no estaba en caché se quedaban sin foto.
+    // Los dominios permitidos se validan en lib/imagenes.ts.
+    loader: 'custom',
+    loaderFile: './lib/image-loader.ts',
   },
   async redirects() {
     return [

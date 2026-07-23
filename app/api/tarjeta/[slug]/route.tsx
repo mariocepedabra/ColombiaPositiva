@@ -31,12 +31,19 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   // WhatsApp descarga esta imagen al generar la vista previa del enlace.
   // Para WhatsApp se entrega la imagen original de la nota (sin tarjeta);
   // el resto de plataformas sigue recibiendo la imagen-tarjeta.
-  // Se redirige a la versión optimizada (/_next/image) porque WhatsApp
-  // descarta vistas previas con imágenes de más de ~600 KB.
+  // Se redirige a la versión optimizada (/api/imagen) porque WhatsApp
+  // descarta vistas previas con imágenes de más de ~600 KB. Se pide JPEG
+  // porque WhatsApp no genera la vista previa con WebP.
+  // Las notas sin foto propia usan la portada genérica, que es un archivo
+  // local: en ese caso no hay nada que optimizar ni que incrustar.
+  const fotoRemota = article?.imageUrl && /^https?:\/\//i.test(article.imageUrl)
+    ? article.imageUrl
+    : null
+
   const userAgent = req.headers.get('user-agent') ?? ''
-  if (article?.imageUrl && /whatsapp/i.test(userAgent)) {
+  if (fotoRemota && /whatsapp/i.test(userAgent)) {
     const origin = new URL(req.url).origin
-    const optimized = `${origin}/_next/image?url=${encodeURIComponent(article.imageUrl)}&w=640&q=75`
+    const optimized = `${origin}/api/imagen?url=${encodeURIComponent(fotoRemota)}&w=640&q=75&f=jpeg`
     return new Response(null, {
       status: 302,
       headers: { Location: optimized, ...NO_CDN_CACHE },
@@ -61,10 +68,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   return new ImageResponse(
     (
       <div style={{ display: 'flex', width: '100%', height: '100%', background: '#ffffff' }}>
-        {/* Imagen de la nota */}
-        <div style={{ display: 'flex', width: 500, height: HEIGHT }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={article.imageUrl} width={500} height={HEIGHT} style={{ objectFit: 'cover', width: 500, height: HEIGHT }} alt="" />
+        {/* Imagen de la nota — si no tiene, queda el panel azul de la marca */}
+        <div style={{ display: 'flex', width: 500, height: HEIGHT, background: VERDE, alignItems: 'center', justifyContent: 'center' }}>
+          {fotoRemota ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={fotoRemota} width={500} height={HEIGHT} style={{ objectFit: 'cover', width: 500, height: HEIGHT }} alt="" />
+          ) : (
+            <div style={{ display: 'flex', width: 40, height: 40, background: ORO }} />
+          )}
         </div>
 
         {/* Panel de texto */}

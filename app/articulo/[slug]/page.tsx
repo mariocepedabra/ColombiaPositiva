@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
+import ArticleImage from '@/components/ArticleImage'
 import { getCategoryBySlug, formatDate } from '@/lib/data'
 import { getArticleBySlug, getArticlesByCategory } from '@/lib/articles'
 import NewsCard from '@/components/NewsCard'
@@ -166,7 +166,7 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
 
           {/* Imagen principal */}
           <div className="relative mb-6 overflow-hidden" style={{ height: 380 }}>
-            <Image
+            <ArticleImage
               src={article.imageUrl}
               alt={article.title}
               fill

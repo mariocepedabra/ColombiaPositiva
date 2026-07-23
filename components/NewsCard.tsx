@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import ArticleImage from '@/components/ArticleImage'
 import { Article, categories, formatDateShort } from '@/lib/data'
 
 type Props = {
@@ -16,7 +16,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
       <article className="group flex gap-4 py-4 border-b border-gris-200 last:border-0">
         {showImage && (
           <Link href={`/articulo/${article.slug}`} className="relative flex-shrink-0 overflow-hidden w-28 h-20">
-            <Image
+            <ArticleImage
               src={article.imageUrl}
               alt={article.title}
               fill
@@ -67,7 +67,7 @@ export default function NewsCard({ article, variant = 'vertical', showImage = tr
     <article className="group flex flex-col h-full">
       {showImage && (
         <Link href={`/articulo/${article.slug}`} className="relative overflow-hidden block" style={{ height: 200 }}>
-          <Image
+          <ArticleImage
             src={article.imageUrl}
             alt={article.title}
             fill

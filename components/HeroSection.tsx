@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import ArticleImage from '@/components/ArticleImage'
 import { Article, categories, formatDate } from '@/lib/data'
 
 type Props = {
@@ -16,7 +16,7 @@ function SideArticle({ article, withBorder }: { article: Article; withBorder: bo
   return (
     <article className={`group flex-1 p-4 flex flex-col ${withBorder ? 'border-b border-gris-200' : ''}`}>
       <div className="relative overflow-hidden mb-3" style={{ height: 140 }}>
-        <Image
+        <ArticleImage
           src={article.imageUrl}
           alt={article.title}
           fill
@@ -44,7 +44,7 @@ function MainArticle({ article, isFirst }: { article: Article; isFirst: boolean 
   return (
     <>
       <Link href={`/articulo/${article.slug}`} className="group relative overflow-hidden block" style={{ height: 340 }}>
-        <Image
+        <ArticleImage
           src={article.imageUrl}
           alt={article.title}
           fill
