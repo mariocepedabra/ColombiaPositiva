@@ -164,14 +164,17 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
             <span>{article.readTime} minutos de lectura</span>
           </div>
 
-          {/* Imagen principal */}
-          <div className="relative mb-6 overflow-hidden" style={{ height: 380 }}>
+          {/* Imagen principal — se muestra completa, sin recortar.
+              width/height solo fijan la proporción provisional mientras carga
+              (3:2, la más frecuente en el archivo); al cargar manda la real. */}
+          <div className="mb-6">
             <ArticleImage
               src={article.imageUrl}
               alt={article.title}
-              fill
+              width={1500}
+              height={1000}
               sizes="(max-width: 1024px) 100vw, 66vw"
-              className="object-cover"
+              className="w-full h-auto"
               priority
             />
           </div>

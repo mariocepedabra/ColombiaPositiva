@@ -6,12 +6,14 @@
 // Es un archivo local, así que nunca depende de un servidor externo.
 export const IMAGEN_RESPALDO = '/portada-generica.svg'
 
-// Anchos que puede pedir next/image (deviceSizes + imageSizes por defecto).
-// Restringir a esta lista evita que un tercero genere variantes infinitas.
-export const ANCHOS = [
-  16, 32, 48, 64, 96, 128, 256, 384,
-  640, 750, 828, 1080, 1200, 1920, 2048, 3840,
-] as const
+// Anchos que puede pedir next/image. Son menos que los que trae Next por
+// defecto (16) a propósito: cada ancho de cada foto es una redimensión que
+// gasta CPU de función en Vercel, y el plan tiene tope. Con estos siete se
+// cubren móvil, tablet y escritorio sin generar variantes de más.
+// next.config.ts los reparte en deviceSizes / imageSizes.
+export const ANCHOS_MINIATURA = [128, 256, 384]
+export const ANCHOS_DISPOSITIVO = [640, 828, 1080, 1920]
+export const ANCHOS = [...ANCHOS_MINIATURA, ...ANCHOS_DISPOSITIVO]
 
 export function anchoMasCercano(width: number): number {
   if (!Number.isFinite(width) || width <= 0) return 640

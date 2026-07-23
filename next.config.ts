@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { ANCHOS_DISPOSITIVO, ANCHOS_MINIATURA } from './lib/imagenes'
 
 const nextConfig: NextConfig = {
   images: {
@@ -8,6 +9,10 @@ const nextConfig: NextConfig = {
     // Los dominios permitidos se validan en lib/imagenes.ts.
     loader: 'custom',
     loaderFile: './lib/image-loader.ts',
+    // Menos anchos que los de serie: cada uno es una redimensión que gasta
+    // CPU de función, y el plan de Vercel tiene tope.
+    deviceSizes: ANCHOS_DISPOSITIVO,
+    imageSizes: ANCHOS_MINIATURA,
   },
   async redirects() {
     return [
