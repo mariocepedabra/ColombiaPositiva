@@ -4,6 +4,14 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PanelData, PanelVideo, PanelTotals } from '@/lib/social/panel'
 import type { SocialPlatform } from '@/lib/social/accounts'
+import { num, fecha, fechaHora } from '@/lib/social/formato'
+import ImportadorTikTok from './ImportadorTikTok'
+import {
+  ComparativoVideos,
+  EvolucionDiaria,
+  RendimientoPorFecha,
+  FichaVideo,
+} from './SocialCharts'
 
 const REDES: { key: SocialPlatform; nombre: string; color: string; icono: string }[] = [
   {
@@ -29,25 +37,6 @@ const REDES: { key: SocialPlatform; nombre: string; color: string; icono: string
   },
 ]
 
-const num = (n: number) => n.toLocaleString('es-CO')
-
-function fecha(iso: string | null): string {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function fechaHora(iso: string | null): string {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleString('es-CO', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-    timeZone: 'America/Bogota',
-  })
-}
 
 export default function SocialMetrics({ data }: { data: PanelData }) {
   const router = useRouter()
@@ -55,6 +44,7 @@ export default function SocialMetrics({ data }: { data: PanelData }) {
   const [sincronizando, setSincronizando] = useState(false)
   const [aviso, setAviso] = useState('')
   const [error, setError] = useState('')
+  const [ficha, setFicha] = useState<PanelVideo | null>(null)
 
   const visibles = useMemo(
     () => (filtro === 'todas' ? data.videos : data.videos.filter((v) => v.platform === filtro)),
@@ -62,6 +52,10 @@ export default function SocialMetrics({ data }: { data: PanelData }) {
   )
 
   const maxViews = Math.max(...visibles.map((v) => v.views), 1)
+
+  // Promedio de vistas de la cuenta, para comparar cada video en su ficha.
+  const promedioCuenta =
+    data.videos.length > 0 ? data.global.views / data.videos.length : 0
 
   async function sincronizar() {
     setSincronizando(true)
@@ -160,6 +154,8 @@ export default function SocialMetrics({ data }: { data: PanelData }) {
         </p>
       )}
 
+      <ImportadorTikTok />
+
       {/* Totales globales */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Tarjeta etiqueta="Vistas totales" valor={data.global.views} destacada />
@@ -193,6 +189,11 @@ export default function SocialMetrics({ data }: { data: PanelData }) {
         ))}
       </div>
 
+      {/* Gráficas — respetan el filtro de red elegido arriba */}
+      <ComparativoVideos videos={visibles} onSelect={setFicha} />
+      <EvolucionDiaria daily={data.daily} />
+      <RendimientoPorFecha videos={visibles} onSelect={setFicha} />
+
       {/* Ranking */}
       <div className="bg-white border border-gris-200">
         <div className="hidden lg:grid grid-cols-12 gap-3 px-4 py-3 border-b border-gris-200 bg-gris-100">
@@ -217,10 +218,25 @@ export default function SocialMetrics({ data }: { data: PanelData }) {
           </div>
         ) : (
           visibles.map((video, idx) => (
-            <FilaVideo key={`${video.platform}:${video.external_id}`} video={video} indice={idx} maxViews={maxViews} />
+            <FilaVideo
+              key={`${video.platform}:${video.external_id}`}
+              video={video}
+              indice={idx}
+              maxViews={maxViews}
+              onSelect={setFicha}
+            />
           ))
         )}
       </div>
+
+      {ficha && (
+        <FichaVideo
+          video={ficha}
+          historia={data.historyByVideo[`${ficha.platform}:${ficha.external_id}`] ?? []}
+          promedioCuenta={promedioCuenta}
+          onClose={() => setFicha(null)}
+        />
+      )}
     </div>
   )
 }
@@ -330,17 +346,23 @@ function FilaVideo({
   video,
   indice,
   maxViews,
+  onSelect,
 }: {
   video: PanelVideo
   indice: number
   maxViews: number
+  onSelect: (v: PanelVideo) => void
 }) {
   const [sinPortada, setSinPortada] = useState(false)
   const red = REDES.find((r) => r.key === video.platform)
   const pct = maxViews > 0 ? (video.views / maxViews) * 100 : 0
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 px-4 py-3 border-b border-gris-200 last:border-b-0 items-center hover:bg-gris-100/50 transition-colors">
+    <div
+      onClick={() => onSelect(video)}
+      className="grid grid-cols-1 lg:grid-cols-12 gap-3 px-4 py-3 border-b border-gris-200 last:border-b-0 items-center hover:bg-gris-100/50 transition-colors cursor-pointer"
+      title="Ver la ficha de este video"
+    >
       {/* Posición */}
       <div className="hidden lg:block col-span-1">
         <span className="font-heading font-900 text-xl text-gris-300">{indice + 1}</span>
@@ -376,6 +398,7 @@ function FilaVideo({
             href={video.url}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="font-sans text-sm font-600 text-tinta hover:text-verde hover:underline line-clamp-2 leading-snug"
           >
             {video.title || 'Sin título'}

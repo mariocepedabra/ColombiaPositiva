@@ -155,6 +155,61 @@ async function saveMetrics(
   return filas.length
 }
 
+export type ImportReport = {
+  detectados: number
+  yaEstaban: number
+  importados: number
+  noEncontrados: string[]
+}
+
+/** Saca todos los ids de video de un texto pegado (enlaces sueltos, por líneas, con o sin query). */
+export function extractTikTokIds(texto: string): string[] {
+  const ids = new Set<string>()
+  for (const match of texto.matchAll(/(?:\/video\/|\bvideo\/|^|[^\d])(\d{15,25})/g)) {
+    ids.add(match[1])
+  }
+  return [...ids]
+}
+
+/**
+ * Compara una lista de enlaces de TikTok contra lo que ya está en la web e
+ * importa únicamente los que faltan, con sus métricas.
+ *
+ * Hace falta porque TikTok solo expone los 10 videos más recientes de un
+ * perfil a quien no tiene sesión iniciada: el histórico no se puede enumerar
+ * automáticamente y los enlaces tiene que aportarlos el administrador.
+ */
+export async function importTikTokUrls(texto: string): Promise<ImportReport> {
+  const admin = createAdminClient()
+  const ids = extractTikTokIds(texto)
+  if (ids.length === 0) {
+    throw new Error('No se encontró ningún enlace de TikTok válido en el texto')
+  }
+
+  const enLaWeb = await readSiteTikTokIds(admin)
+  const faltantes = ids.filter((id) => !enLaWeb.has(id))
+
+  // Se consultan solo los que faltan: los que ya están los refresca el cron.
+  const stats = await fetchManyVideoStats(faltantes, TIKTOK_HANDLE)
+  const porId = new Map(stats.map((s) => [s.externalId, s]))
+
+  const importados = await importNewTikTokVideos(
+    admin,
+    stats.map((s) => ({ id: s.externalId, title: s.title, publishedAt: s.publishedAt }))
+  )
+
+  for (const s of stats) enLaWeb.add(s.externalId)
+  await saveMetrics(admin, stats, enLaWeb)
+
+  return {
+    detectados: ids.length,
+    yaEstaban: ids.length - faltantes.length,
+    importados,
+    // TikTok no devolvió datos: el enlace está mal, el video se borró o es privado.
+    noEncontrados: faltantes.filter((id) => !porId.has(id)),
+  }
+}
+
 export async function runSocialSync(): Promise<SyncReport> {
   const inicio = Date.now()
   const admin = createAdminClient()

@@ -29,6 +29,15 @@ export type PanelTotals = {
   shares: number
 }
 
+/** Un punto de la serie histórica: el acumulado de toda la cuenta ese día. */
+export type DailyPoint = {
+  day: string
+  views: number
+  likes: number
+  comments: number
+  shares: number
+}
+
 export type SyncRun = {
   started_at: string
   finished_at: string | null
@@ -45,9 +54,14 @@ export type PanelData = {
   totals: Record<SocialPlatform, PanelTotals>
   global: PanelTotals
   lastRun: SyncRun | null
+  /** Acumulado de la cuenta por día, para la gráfica de evolución. */
+  daily: DailyPoint[]
+  /** Serie de vistas por video (`plataforma:id` → puntos), para la ficha individual. */
+  historyByVideo: Record<string, { day: string; views: number }[]>
 }
 
 const PLATFORMS: SocialPlatform[] = ['tiktok', 'instagram', 'facebook']
+const DIAS_DE_HISTORIA = 30
 
 function emptyTotals(): PanelTotals {
   return { videos: 0, views: 0, likes: 0, comments: 0, shares: 0 }
@@ -65,6 +79,8 @@ export async function getPanelData(): Promise<PanelData> {
     totals: { tiktok: emptyTotals(), instagram: emptyTotals(), facebook: emptyTotals() },
     global: emptyTotals(),
     lastRun: null,
+    daily: [],
+    historyByVideo: {},
   }
 
   const supabase = await createClient()
@@ -87,19 +103,52 @@ export async function getPanelData(): Promise<PanelData> {
 
   const videos = (filas ?? []) as Omit<PanelVideo, 'views_delta'>[]
 
-  // Foto del día anterior para calcular cuánto creció cada video.
+  // Histórico de los últimos días: alimenta la gráfica de evolución, la
+  // comparación "vs. ayer" y la serie de cada video en su ficha.
+  const desde = new Date(Date.now() - DIAS_DE_HISTORIA * 24 * 60 * 60 * 1000)
+    .toLocaleDateString('en-CA', { timeZone: 'America/Bogota' })
+
+  const { data: historico } = await supabase
+    .from('social_video_daily')
+    .select('platform, external_id, day, views, likes, comments, shares')
+    .gte('day', desde)
+    .order('day', { ascending: true })
+    .limit(5000)
+
+  const porDia = new Map<string, DailyPoint>()
+  const historyByVideo: Record<string, { day: string; views: number }[]> = {}
+  const ayerPorVideo = new Map<string, number>()
+
   const ayer = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA', {
     timeZone: 'America/Bogota',
   })
-  const previas = new Map<string, number>()
-  const { data: historico } = await supabase
-    .from('social_video_daily')
-    .select('platform, external_id, views')
-    .eq('day', ayer)
-    .limit(1000)
+
   for (const fila of historico ?? []) {
-    const f = fila as { platform: string; external_id: string; views: number }
-    previas.set(`${f.platform}:${f.external_id}`, f.views)
+    const f = fila as {
+      platform: string
+      external_id: string
+      day: string
+      views: number
+      likes: number
+      comments: number
+      shares: number
+    }
+    const punto = porDia.get(f.day) ?? {
+      day: f.day,
+      views: 0,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+    }
+    punto.views += f.views
+    punto.likes += f.likes
+    punto.comments += f.comments
+    punto.shares += f.shares
+    porDia.set(f.day, punto)
+
+    const clave = `${f.platform}:${f.external_id}`
+    ;(historyByVideo[clave] ??= []).push({ day: f.day, views: f.views })
+    if (f.day === ayer) ayerPorVideo.set(clave, f.views)
   }
 
   const { data: corridas } = await supabase
@@ -116,7 +165,7 @@ export async function getPanelData(): Promise<PanelData> {
   const global = emptyTotals()
 
   const conDelta: PanelVideo[] = videos.map((v) => {
-    const anterior = previas.get(`${v.platform}:${v.external_id}`)
+    const anterior = ayerPorVideo.get(`${v.platform}:${v.external_id}`)
     const acumular = (t: PanelTotals) => {
       t.videos += 1
       t.views += v.views
@@ -139,5 +188,7 @@ export async function getPanelData(): Promise<PanelData> {
     totals,
     global,
     lastRun: (corridas?.[0] as SyncRun | undefined) ?? null,
+    daily: [...porDia.values()].sort((a, b) => a.day.localeCompare(b.day)),
+    historyByVideo,
   }
 }

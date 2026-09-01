@@ -47,6 +47,21 @@ incrustado del sitio. No requieren llave, cuenta de desarrollador ni aprobación
   Los que falten se insertan **activos**, con la fecha real de publicación para
   que el carrusel de la portada quede en orden cronológico.
 
+### Recuperar videos antiguos
+
+Los **10 más recientes** son el máximo que TikTok entrega a quien no tiene sesión
+iniciada: el perfil completo devuelve una página vacía a cualquier acceso
+automatizado, y no hay endpoint público que pagine. Por eso el histórico anterior
+a esa ventana no se puede descubrir solo.
+
+Para eso está el bloque **"Importar videos antiguos de TikTok"** en `/admin/metricas`:
+se pegan los enlaces y el sistema hace la comparación —descarta los que ya están
+publicados e importa únicamente los que faltan, con sus métricas—. Los repetidos
+se ignoran, así que se puede pegar la lista completa sin revisarla.
+
+El panel incluye la línea que hay que ejecutar en la consola del navegador
+(F12 → Console) sobre el perfil ya cargado, para copiar todos los enlaces de una vez.
+
 ## Instagram y Facebook — falta conectar la API de Meta
 
 Meta cerró el acceso público a los contadores: la página de *embed* de Instagram
