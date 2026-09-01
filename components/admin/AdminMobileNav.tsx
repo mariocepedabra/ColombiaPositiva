@@ -27,9 +27,9 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
   return (
     <>
       {/* Barra superior móvil */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[rgb(2,76,77)] text-white flex items-center justify-between px-4 py-3 border-b border-white/10">
-        <Link href="/" className="font-heading font-700 text-base text-verde">
-          Colombia Positiva
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-[#013262] text-white flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <Link href="/" className="font-heading font-700 text-base text-white">
+          Colombia <span className="text-[#31c303]">Positiva</span>
         </Link>
         <button
           onClick={() => setOpen(!open)}
@@ -52,18 +52,18 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
       {open && (
         <div className="fixed inset-0 z-50 md:hidden bg-black/60" onClick={() => setOpen(false)}>
           <div
-            className="absolute top-0 left-0 h-full w-72 bg-[rgb(2,76,77)] text-white flex flex-col"
+            className="absolute top-0 left-0 h-full w-72 bg-[#013262] text-white flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 border-b border-white/10">
-              <p className="font-heading font-700 text-lg text-verde leading-tight">Colombia Positiva</p>
+              <p className="font-heading font-700 text-lg text-white leading-tight">Colombia <span className="text-[#31c303]">Positiva</span></p>
               <p className="font-sans text-xs text-white/50 mt-0.5">Panel de administración</p>
             </div>
 
             <div className="px-6 py-4 border-b border-white/10">
               <p className="font-sans text-sm font-600 text-white truncate">{profile.full_name || userEmail}</p>
               <span className={`inline-block font-sans text-xs px-2 py-0.5 mt-1 ${
-                profile.role === 'admin' ? 'bg-verde text-white' : 'bg-white/10 text-white/70'
+                profile.role === 'admin' ? 'bg-[#31c303] text-[#013262] font-600' : 'bg-white/15 text-white/80'
               }`}>
                 {profile.role === 'admin' ? 'Administrador' : 'Columnista'}
               </span>
@@ -81,6 +81,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
                   </div>
                   <MobileNavItem href="/admin/usuarios" label="Usuarios" icon="👥" active={isActive('/admin/usuarios')} />
                   <MobileNavItem href="/admin/estadisticas" label="Estadísticas" icon="📊" active={isActive('/admin/estadisticas')} />
+                  <MobileNavItem href="/admin/metricas" label="Métricas de redes" icon="📈" active={isActive('/admin/metricas')} />
                   <MobileNavItem href="/admin/notas-positivas" label="Notas del público" icon="📬" active={isActive('/admin/notas-positivas')} />
                   <MobileNavItem href="/admin/pautas" label="Pautas" icon="📢" active={isActive('/admin/pautas')} />
                   <MobileNavItem href="/admin/suscriptores" label="Suscriptores" icon="⭐" active={isActive('/admin/suscriptores')} />
@@ -110,8 +111,8 @@ function MobileNavItem({ href, label, icon, active }: { href: string; label: str
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-6 py-3 font-sans text-sm transition-colors ${
-        active ? 'bg-[rgb(1,50,98)] text-white' : 'text-white/80 hover:text-white hover:bg-[rgb(1,50,98)]'
+      className={`flex items-center gap-3 px-6 py-3 font-sans text-sm transition-colors border-l-[3px] ${
+        active ? 'bg-[#011f3d] text-white border-[#31c303] font-600' : 'text-white/75 border-transparent hover:text-white hover:bg-white/10'
       }`}
     >
       <span>{icon}</span>
