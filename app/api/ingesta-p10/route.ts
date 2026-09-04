@@ -228,13 +228,38 @@ export async function POST(request: NextRequest) {
   }
 
   // Slug: se respeta el de Página 10 salvo que ya lo ocupe otra nota.
-  const { data: existente } = await supabase
+  let existente: { id: string; slug: string } | null = null
+  let slug = ''
+
+  const { data: porOrigen } = await supabase
     .from('articles')
     .select('id, slug')
     .eq('p10_post_id', postId)
     .maybeSingle()
 
-  const slug = existente?.slug ?? (await slugLibre(supabase, paquete.slug || '', titulo, postId))
+  if (porOrigen) {
+    existente = porOrigen
+    slug = porOrigen.slug
+  } else {
+    // Adopción: durante mucho tiempo las notas de Página 10 se copiaron a mano,
+    // y esas filas no tienen `p10_post_id`. Si ya existe una con el mismo slug
+    // y sin origen, se actualiza ESA en lugar de publicar un duplicado con el
+    // slug terminado en "-2", y de paso queda enlazada para siempre.
+    const propuesto = baseSlug(paquete.slug || '', titulo, postId)
+    const { data: porSlug } = await supabase
+      .from('articles')
+      .select('id, slug, p10_post_id')
+      .eq('slug', propuesto)
+      .maybeSingle()
+
+    if (porSlug && porSlug.p10_post_id == null) {
+      existente = { id: porSlug.id, slug: porSlug.slug }
+      slug = porSlug.slug
+      avisos.push('Se actualizó la nota que ya existía con este mismo enlace en lugar de duplicarla.')
+    } else {
+      slug = await slugLibre(supabase, paquete.slug || '', titulo, postId)
+    }
+  }
 
   const fila = {
     title: titulo,
@@ -330,14 +355,9 @@ async function copiar(
   }
 }
 
-/** Busca un slug libre, respetando el de Página 10 siempre que se pueda. */
-async function slugLibre(
-  supabase: ReturnType<typeof createAdminClient>,
-  propuesto: string,
-  titulo: string,
-  postId: number
-): Promise<string> {
-  const base =
+/** Slug base a partir del de Página 10 (o del titular si no lo hay). */
+function baseSlug(propuesto: string, titulo: string, postId: number): string {
+  return (
     (propuesto || titulo)
       .toLowerCase()
       // NFD separa la letra de su tilde; al quitar todo lo que no es ASCII
@@ -347,6 +367,17 @@ async function slugLibre(
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 90) || `nota-p10-${postId}`
+  )
+}
+
+/** Busca un slug libre, respetando el de Página 10 siempre que se pueda. */
+async function slugLibre(
+  supabase: ReturnType<typeof createAdminClient>,
+  propuesto: string,
+  titulo: string,
+  postId: number
+): Promise<string> {
+  const base = baseSlug(propuesto, titulo, postId)
 
   for (let intento = 0; intento < 20; intento++) {
     const candidato = intento === 0 ? base : `${base}-${intento + 1}`
