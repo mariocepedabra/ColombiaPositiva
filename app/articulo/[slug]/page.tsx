@@ -23,7 +23,10 @@ export async function generateMetadata(props: PageProps<'/articulo/[slug]'>): Pr
     title: article.title,
     description: article.excerpt,
     metadataBase: new URL(SITE_URL),
-    alternates: { canonical: url },
+    // Las notas sindicadas desde Página 10 declaran como canónica la original.
+    // Es lo estándar en prensa: evita que Google penalice el contenido
+    // duplicado entre los dos medios y concentra la autoridad en la fuente.
+    alternates: { canonical: article.p10Url || url },
     openGraph: {
       type: 'article',
       title: article.title,
@@ -190,6 +193,21 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
               renderContent(article.content)
             )}
           </ArticleBodyWrapper>
+
+          {/* Crédito a la fuente cuando la nota llega sindicada desde Página 10 */}
+          {article.p10Url && (
+            <p className="mt-8 border-t border-gris-200 pt-4 text-sm font-sans text-gris-600">
+              Publicado originalmente en{' '}
+              <a
+                href={article.p10Url}
+                target="_blank"
+                rel="noopener"
+                className="font-700 text-tinta transition-colors hover:text-verde"
+              >
+                Página 10 &rarr;
+              </a>
+            </p>
+          )}
 
           {/* Compartir */}
           <ShareButtons
