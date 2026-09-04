@@ -18,6 +18,10 @@ export type DbArticle = {
   view_count: number
   created_at: string
   updated_at: string
+  // Origen cuando la nota llega sindicada desde Página 10 (ver
+  // app/api/ingesta-p10). En las notas propias van a null.
+  p10_post_id?: number | null
+  p10_url?: string | null
 }
 
 export type Profile = {
@@ -41,6 +45,7 @@ function normalize(db: DbArticle): Article {
     // Sin foto propia va la portada genérica de la marca, no una imagen
     // aleatoria de un banco de fotos ajeno a la noticia.
     imageUrl: db.image_url?.trim() || IMAGEN_RESPALDO,
+    p10Url: db.p10_url?.trim() || null,
   }
 }
 

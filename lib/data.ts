@@ -15,6 +15,8 @@ export type Article = {
   publishedAt: string
   readTime: number
   imageUrl: string
+  /** Permalink en Página 10 si la nota llegó sindicada desde allí. */
+  p10Url?: string | null
 }
 
 // Los slugs 'economia' y 'medio-ambiente' se conservan en URLs y BD
