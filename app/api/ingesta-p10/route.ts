@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { TAG_PORTADA } from '@/lib/app-api/portada'
+import { TAG_NOTAS } from '@/lib/app-api/nota'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
@@ -396,6 +397,7 @@ function revalidar(slug: string) {
     revalidatePath('/')
     // La portada de la app (/api/app/home) también se marca como vieja.
     revalidateTag(TAG_PORTADA, 'max')
+    revalidateTag(TAG_NOTAS, 'max')
   } catch {
     // La revalidación es una mejora, no un requisito: la página usa ISR de
     // 60 segundos y se actualizaría igualmente.

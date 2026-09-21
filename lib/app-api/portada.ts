@@ -7,7 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createAnonClient } from '@/lib/supabase/anon'
 import { getVideoVisibility } from '@/lib/video-visibility'
 import { effectivePlatform, getEmbedUrl, type Video } from '@/lib/videos'
-import type { Anuncio, BloqueSeccion, NotaResumen, Portada, SlugSeccion, VideoResumen } from './contratos'
+import { VERSION_CONTRATO, type Anuncio, type BloqueSeccion, type NotaResumen, type Portada, type SlugSeccion, type VideoResumen } from './contratos'
 import { aNotaResumen, CAMPOS_RESUMEN, type FilaResumen } from './notas'
 
 // Construye la portada completa de la app en UNA sola respuesta. Replica el
@@ -194,7 +194,7 @@ export async function construirPortada(): Promise<Portada> {
     .filter((s) => s.notas.length > 0)
 
   return {
-    version: 1,
+    version: VERSION_CONTRATO,
     generadoEn: new Date().toISOString(),
     ticker,
     principales,

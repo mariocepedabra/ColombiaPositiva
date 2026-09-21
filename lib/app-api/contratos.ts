@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 1
+export const VERSION_CONTRATO = 2
 
 export type SlugSeccion =
   | 'personajes'
@@ -98,4 +98,50 @@ export type Portada = {
     contacto: string
     privacidad: string
   }
+}
+
+// ---- Hito 4: nota, sección, buscador, conteos ----
+
+/** Respuesta de GET /api/app/nota/[slug]. */
+export type NotaCompleta = NotaResumen & {
+  /**
+   * Cuerpo en HTML limpio: p, h2, h3, ul/ol/li, strong, em, a, blockquote,
+   * figure/figcaption e img (con src ya apuntando a /api/imagen). Sin estilos
+   * en línea, sin scripts. Las notas en texto plano llegan convertidas.
+   */
+  cuerpoHtml: string
+  /** El cuerpo sin etiquetas, para "escuchar nota" (texto a voz del teléfono). */
+  textoPlano: string
+  /** Permalink en Página 10 si la nota llegó sindicada desde allí. */
+  p10Url: string | null
+  /** true = solo para suscriptores. Hoy siempre false: la web no bloquea contenido. */
+  bloqueada: boolean
+  /** Según el token Bearer: admin o suscripción activa pueden copiar el texto. */
+  puedeCopiar: boolean
+  /** "Más en {sección}": hasta 4 notas de la misma sección. */
+  relacionadas: NotaResumen[]
+  /** URL canónica en la web (para compartir). */
+  urlWeb: string
+}
+
+/** Respuesta de GET /api/app/seccion/[slug]?pagina=1 */
+export type PaginaSeccion = {
+  seccion: { slug: SlugSeccion; nombre: string; color: string }
+  total: number
+  pagina: number
+  porPagina: number
+  haySiguiente: boolean
+  notas: NotaResumen[]
+}
+
+/** Respuesta de GET /api/app/buscar?q= */
+export type ResultadoBusqueda = {
+  consulta: string
+  notas: NotaResumen[]
+}
+
+/** Respuesta de GET /api/app/secciones */
+export type ConteosSecciones = {
+  total: number
+  secciones: { slug: SlugSeccion; nombre: string; color: string; total: number }[]
 }
