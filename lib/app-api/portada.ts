@@ -30,6 +30,9 @@ const ENLACES: Portada['enlaces'] = {
   notaPositiva: `${SITE_URL}/nota-positiva`,
   contacto: `${SITE_URL}/contacto`,
   privacidad: `${SITE_URL}/privacidad`,
+  // Correo público del medio. Se configura en Vercel (CONTACT_EMAIL); hasta
+  // entonces la app solo enlaza a la página de contacto.
+  correoContacto: process.env.CONTACT_EMAIL?.trim() || null,
 }
 
 type FilaVideo = Video

@@ -78,9 +78,9 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-sans text-white/30">
           <span>© {year} Colombia Positiva. Todos los derechos reservados.</span>
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-white transition-colors">Privacidad</Link>
-            <Link href="#" className="hover:text-white transition-colors">Términos</Link>
-            <Link href="#" className="hover:text-white transition-colors">Contacto</Link>
+            <Link href="/privacidad" className="hover:text-white transition-colors">Privacidad</Link>
+            <Link href="/privacidad#terminos" className="hover:text-white transition-colors">Términos</Link>
+            <Link href="/contacto" className="hover:text-white transition-colors">Contacto</Link>
             <Link href="/pauta" className="hover:text-white transition-colors">Pauta con nosotros</Link>
             <Link href="/suscripcion" className="hover:text-white transition-colors">Suscríbete</Link>
             <Link href="/admin" className="hover:text-white transition-colors">Panel</Link>

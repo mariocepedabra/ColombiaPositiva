@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 2
+export const VERSION_CONTRATO = 3
 
 export type SlugSeccion =
   | 'personajes'
@@ -97,6 +97,8 @@ export type Portada = {
     notaPositiva: string
     contacto: string
     privacidad: string
+    /** Correo público de contacto (variable CONTACT_EMAIL en Vercel) o null. */
+    correoContacto: string | null
   }
 }
 
@@ -144,4 +146,47 @@ export type ResultadoBusqueda = {
 export type ConteosSecciones = {
   total: number
   secciones: { slug: SlugSeccion; nombre: string; color: string; total: number }[]
+}
+
+// ---- Hito 5: sesión y cuenta ----
+
+/** Cuerpo de POST /api/app/auth/login */
+export type PeticionLogin = { email: string; password: string }
+
+/** Cuerpo de POST /api/app/auth/refresh */
+export type PeticionRefresh = { refreshToken: string }
+
+/** Respuesta de login y refresh. Los tokens son los de Supabase Auth. */
+export type SesionTokens = {
+  accessToken: string
+  refreshToken: string
+  /** Segundos desde epoch en que caduca el accessToken. */
+  expiraEn: number
+}
+
+export type RolUsuario = 'admin' | 'columnista' | 'lector'
+
+/** Respuesta de GET /api/app/cuenta (requiere Bearer). */
+export type Cuenta = {
+  usuario: {
+    id: string
+    email: string | null
+    nombre: string
+    rol: RolUsuario
+    /** ISO 8601: fecha de creación de la cuenta ("miembro desde"). */
+    miembroDesde: string
+  }
+  suscripcion: {
+    activa: boolean
+    /** '1d' | '1m' | '6m' | '1y' | 'manual' */
+    plan: string
+    planNombre: string
+    inicio: string | null
+    /** null = indefinida (acceso de cortesía). */
+    vence: string | null
+  } | null
+  /** Pautas enviadas con el correo de la cuenta (anunciante). */
+  anunciante: { pautas: number; pagadas: number; activas: number } | null
+  /** Puede copiar el texto de las notas (admin o suscripción activa). */
+  puedeCopiar: boolean
 }
