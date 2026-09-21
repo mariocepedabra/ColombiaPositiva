@@ -4,7 +4,7 @@ import { readConfigJson } from '@/lib/app-config-store'
 import { createAnonClient } from '@/lib/supabase/anon'
 import type { Columnistas, NotaResumen, PaginaAutor, ResumenAutor } from './contratos'
 import { TAG_NOTAS } from './nota'
-import { aNotaResumen, CAMPOS_RESUMEN, type FilaResumen } from './notas'
+import { aNotaResumen, CAMPOS_RESUMEN, esFirmaInstitucional, type FilaResumen } from './notas'
 
 // Columnistas de Colombia Positiva. No existe una tabla de autores: cada
 // firma es el texto `author_name` de sus notas. El perfil se deriva de ellas
@@ -13,19 +13,12 @@ import { aNotaResumen, CAMPOS_RESUMEN, type FilaResumen } from './notas'
 // archivo app-config/autores.json del bucket privado:
 //   { "Nombre tal cual firma": { "bio": "…", "foto": "https://…" } }
 
-// Firmas institucionales: no son columnistas.
-const FIRMAS_INSTITUCIONALES = new Set(['colombia positiva', 'redacción colombia positiva', 'redaccion colombia positiva', 'página 10', 'pagina 10'])
-
 const SEGUNDOS_CACHE = 600
 export const POR_PAGINA_AUTOR = 20
 const PAGINA_BD = 1000
 
 type Extra = { bio?: string; foto?: string }
 type Extras = Record<string, Extra>
-
-export function esFirmaInstitucional(nombre: string): boolean {
-  return FIRMAS_INSTITUCIONALES.has(nombre.trim().toLowerCase())
-}
 
 async function extrasAutores(): Promise<Extras> {
   return readConfigJson<Extras>('autores.json', {})

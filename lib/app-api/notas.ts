@@ -27,3 +27,10 @@ export function aNotaResumen(fila: FilaResumen): NotaResumen {
     imagen: imagen && /^https?:\/\//i.test(imagen) ? imagen : null,
   }
 }
+
+// Firmas institucionales: no son columnistas (sin perfil ni retrato).
+const FIRMAS_INSTITUCIONALES = new Set(['colombia positiva', 'redacción colombia positiva', 'redaccion colombia positiva', 'página 10', 'pagina 10'])
+
+export function esFirmaInstitucional(nombre: string): boolean {
+  return FIRMAS_INSTITUCIONALES.has(nombre.trim().toLowerCase())
+}

@@ -8,6 +8,8 @@ import NewsCard from '@/components/NewsCard'
 import ArticleBodyWrapper from '@/components/ArticleBodyWrapper'
 import ViewTracker from '@/components/ViewTracker'
 import ShareButtons from '@/components/ShareButtons'
+import EscucharNota from '@/components/EscucharNota'
+import { htmlATextoPlano, normalizarCuerpo } from '@/lib/app-api/cuerpo'
 import { canUserCopy } from '@/lib/paywall'
 import { SITE_URL, articleUrl, cardImageUrl } from '@/lib/site'
 
@@ -115,6 +117,10 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
   // Puede copiar el texto: admin/Mario o suscriptor con suscripción activa
   const canCopy = await canUserCopy()
 
+  // Texto plano para "Escuchar esta nota" (voz del navegador).
+  const textoParaVoz = `${article.title}. ${article.excerpt}
+${htmlATextoPlano(normalizarCuerpo(article.content))}`
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -181,6 +187,9 @@ export default async function ArticlePage(props: PageProps<'/articulo/[slug]'>) 
               priority
             />
           </div>
+
+          {/* Escuchar esta nota (voz del navegador) */}
+          <EscucharNota texto={textoParaVoz} />
 
           {/* Rastreador de visitas (invisible) */}
           <ViewTracker slug={article.slug} title={article.title} />

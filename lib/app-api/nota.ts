@@ -6,7 +6,7 @@ import { articleUrl } from '@/lib/site'
 import { createAnonClient } from '@/lib/supabase/anon'
 import type { ConteosSecciones, NotaCompleta, NotaResumen, PaginaSeccion, ResultadoBusqueda, SlugSeccion } from './contratos'
 import { htmlATextoPlano, normalizarCuerpo } from './cuerpo'
-import { aNotaResumen, CAMPOS_RESUMEN, type FilaResumen } from './notas'
+import { aNotaResumen, CAMPOS_RESUMEN, esFirmaInstitucional, type FilaResumen } from './notas'
 
 export const TAG_NOTAS = 'app-notas'
 const SEGUNDOS_CACHE = 60
@@ -42,6 +42,22 @@ async function construirNota(slug: string): Promise<NotaBase | null> {
 
   const cuerpoHtml = normalizarCuerpo(fila.content ?? '')
 
+  // Retrato del columnista: la foto de su nota más reciente (como en su perfil).
+  let autorRetrato: string | null = null
+  const firma = (fila.author_name ?? '').trim()
+  if (firma && !esFirmaInstitucional(firma)) {
+    const { data: propias } = await supabase
+      .from('articles')
+      .select('image_url')
+      .eq('is_published', true)
+      .eq('author_name', firma)
+      .not('image_url', 'is', null)
+      .order('published_at', { ascending: false })
+      .limit(1)
+    const foto = (propias?.[0] as { image_url?: string } | undefined)?.image_url?.trim()
+    autorRetrato = foto && foto.startsWith('http') ? foto : null
+  }
+
   return {
     ...resumen,
     cuerpoHtml,
@@ -52,6 +68,7 @@ async function construirNota(slug: string): Promise<NotaBase | null> {
     bloqueada: false,
     relacionadas: ((masDeLaSeccion ?? []) as FilaResumen[]).map(aNotaResumen),
     urlWeb: articleUrl(slug),
+    autorRetrato,
   }
 }
 

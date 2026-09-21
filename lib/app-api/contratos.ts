@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 5
+export const VERSION_CONTRATO = 6
 
 export type SlugSeccion =
   | 'personajes'
@@ -124,6 +124,8 @@ export type NotaCompleta = NotaResumen & {
   relacionadas: NotaResumen[]
   /** URL canónica en la web (para compartir). */
   urlWeb: string
+  /** Retrato del columnista (foto de su nota más reciente) o null si la firma es institucional. */
+  autorRetrato: string | null
 }
 
 /** Respuesta de GET /api/app/seccion/[slug]?pagina=1 */
@@ -242,3 +244,51 @@ export type PaginaAutor = {
   haySiguiente: boolean
   notas: NotaResumen[]
 }
+
+// ---- Publicar desde la app (columnistas y administradores) ----
+
+/** Una nota propia en la lista "Mis notas" (borradores incluidos). */
+export type MiNotaResumen = NotaResumen & {
+  publicada: boolean
+  actualizadaEn: string
+}
+
+/** Respuesta de GET /api/app/mis-notas?pagina= */
+export type PaginaMisNotas = {
+  total: number
+  pagina: number
+  porPagina: number
+  haySiguiente: boolean
+  notas: MiNotaResumen[]
+}
+
+/** Respuesta de GET /api/app/mis-notas/[id]: la nota tal cual se editará. */
+export type MiNotaEditable = {
+  id: string
+  slug: string
+  titulo: string
+  bajada: string
+  /** Cuerpo en texto plano (párrafos separados por línea en blanco) o HTML si vino de la web. */
+  cuerpo: string
+  seccion: SlugSeccion
+  imagen: string | null
+  autor: string
+  publicada: boolean
+  publicadoEn: string
+  minutosLectura: number
+}
+
+/** Cuerpo de POST /api/app/mis-notas y PATCH /api/app/mis-notas/[id]. */
+export type PeticionGuardarNota = {
+  titulo: string
+  bajada: string
+  cuerpo: string
+  seccion: SlugSeccion
+  imagen: string | null
+  publicar: boolean
+  /** Solo los administradores pueden cambiar la firma. */
+  autor?: string
+}
+
+/** Respuesta de POST /api/app/mis-notas/imagen (multipart, campo "archivo"). */
+export type ImagenSubida = { url: string; ancho: number; alto: number }
