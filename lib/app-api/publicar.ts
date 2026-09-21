@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
+import { after } from 'next/server'
 import sharp from 'sharp'
 
 import type { DbArticle } from '@/lib/articles'
@@ -7,6 +8,7 @@ import type { ImagenSubida, MiNotaEditable, MiNotaResumen, PaginaMisNotas, Petic
 import { TAG_NOTAS } from './nota'
 import { aNotaResumen, type FilaResumen } from './notas'
 import { TAG_PORTADA } from './portada'
+import { enviarPushNota } from './push'
 import { clienteConToken, type SesionApp } from './sesion'
 
 // Publicar notas desde la app. Mismas reglas que el panel web:
@@ -172,7 +174,10 @@ export async function crearNota(sesion: SesionApp, token: string, cuerpoPeticion
       .select('id')
       .single()
     if (!error && data) {
-      if (p.publicar) refrescarCaches(p.seccion, slug)
+      if (p.publicar) {
+        refrescarCaches(p.seccion, slug)
+        after(() => enviarPushNota({ slug, titulo: p.titulo, seccion: p.seccion }))
+      }
       const nota = await leerMiNota(sesion, token, (data as { id: string }).id)
       return nota ? { ok: true, datos: nota } : { ok: false, error: 'La nota se guardó pero no se pudo leer.', estado: 500 }
     }
@@ -212,6 +217,8 @@ export async function actualizarNota(sesion: SesionApp, token: string, id: strin
   }
   refrescarCaches(p.seccion, actual.slug)
   if (actual.seccion !== p.seccion) refrescarCaches(actual.seccion, actual.slug)
+  // Aviso push solo al pasar de borrador a publicada.
+  if (p.publicar && !actual.publicada) after(() => enviarPushNota({ slug: actual.slug, titulo: p.titulo, seccion: p.seccion }))
   const nota = await leerMiNota(sesion, token, id)
   return nota ? { ok: true, datos: nota } : { ok: false, error: 'La nota se guardó pero no se pudo leer.', estado: 500 }
 }

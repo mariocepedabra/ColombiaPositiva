@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 6
+export const VERSION_CONTRATO = 7
 
 export type SlugSeccion =
   | 'personajes'
@@ -292,3 +292,33 @@ export type PeticionGuardarNota = {
 
 /** Respuesta de POST /api/app/mis-notas/imagen (multipart, campo "archivo"). */
 export type ImagenSubida = { url: string; ancho: number; alto: number }
+
+// ---- Hito 8: push y estadística anónima ----
+
+/** Cuerpo de POST /api/app/push/registro (y DELETE para darse de baja). */
+export type PeticionPush = { token: string; plataforma: 'ios' | 'android' }
+
+export type TipoEventoLectura = 'portada' | 'nota' | 'seccion' | 'video' | 'busqueda'
+
+/**
+ * Cuerpo de POST /api/app/eventos. Anónimo por diseño: sin token de sesión,
+ * sin usuario, sin identificadores del teléfono. `sesion` es un código al
+ * azar que la app renueva cada día.
+ */
+export type LoteEventosLectura = {
+  plataforma: 'ios' | 'android' | 'web'
+  sesion: string
+  eventos: { tipo: TipoEventoLectura; slug?: string; seccion?: string; en: number }[]
+}
+
+/** Lo que devuelve la función alcance_resumen (panel /admin/alcance). */
+export type ResumenAlcance = {
+  totales: { eventos: number; lecturas: number; sesiones: number; ciudades: number }
+  porPlataforma: { plataforma: string; lecturas: number }[]
+  porSeccion: { seccion: string; lecturas: number; sesiones: number }[]
+  porCiudad: { ciudad: string; region: string | null; lecturas: number; sesiones: number }[]
+  porHora: { hora: number; lecturas: number }[]
+  porDia: { dia: string; lecturas: number; sesiones: number }[]
+  seccionCiudad: { seccion: string; ciudad: string; lecturas: number; sesiones: number }[]
+  notasMasLeidas: { slug: string; lecturas: number }[]
+}

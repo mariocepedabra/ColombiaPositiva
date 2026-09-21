@@ -82,6 +82,7 @@ export default function AdminMobileNav({ profile, userEmail }: Props) {
                   <MobileNavItem href="/admin/usuarios" label="Usuarios" icon="👥" active={isActive('/admin/usuarios')} />
                   <MobileNavItem href="/admin/estadisticas" label="Estadísticas" icon="📊" active={isActive('/admin/estadisticas')} />
                   <MobileNavItem href="/admin/metricas" label="Métricas de redes" icon="📈" active={isActive('/admin/metricas')} />
+                  <MobileNavItem href="/admin/alcance" label="Alcance de la app" icon="📱" active={isActive('/admin/alcance')} />
                   <MobileNavItem href="/admin/notas-positivas" label="Notas del público" icon="📬" active={isActive('/admin/notas-positivas')} />
                   <MobileNavItem href="/admin/pautas" label="Pautas" icon="📢" active={isActive('/admin/pautas')} />
                   <MobileNavItem href="/admin/suscriptores" label="Suscriptores" icon="⭐" active={isActive('/admin/suscriptores')} />

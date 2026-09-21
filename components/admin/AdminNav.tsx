@@ -51,6 +51,7 @@ export default function AdminNav({ profile, userEmail }: Props) {
             </div>
             <NavItem href="/admin/estadisticas" label="Estadísticas" icon="📊" active={isActive('/admin/estadisticas')} />
             <NavItem href="/admin/metricas" label="Métricas de redes" icon="📈" active={isActive('/admin/metricas')} />
+            <NavItem href="/admin/alcance" label="Alcance de la app" icon="📱" active={isActive('/admin/alcance')} />
             <NavItem href="/admin/usuarios" label="Usuarios" icon="👥" active={isActive('/admin/usuarios')} />
             <NavItem href="/admin/notas-positivas" label="Notas del público" icon="📬" active={isActive('/admin/notas-positivas')} />
             <NavItem href="/admin/pautas" label="Pautas" icon="📢" active={isActive('/admin/pautas')} />

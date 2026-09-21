@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createHash, createHmac, timingSafeEqual } from 'crypto'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { TAG_PORTADA } from '@/lib/app-api/portada'
 import { TAG_NOTAS } from '@/lib/app-api/nota'
+import { enviarPushNota } from '@/lib/app-api/push'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
@@ -288,6 +289,12 @@ export async function POST(request: NextRequest) {
   }
 
   revalidar(guardada.slug)
+
+  // Aviso push a la app solo cuando la nota es NUEVA y llega publicada (las
+  // ediciones posteriores no vuelven a avisar).
+  if (!existente && fila.is_published) {
+    after(() => enviarPushNota({ slug: guardada.slug, titulo, seccion: categoria }))
+  }
 
   return NextResponse.json({
     ok: true,

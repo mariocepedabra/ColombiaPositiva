@@ -5,6 +5,8 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { TAG_PORTADA } from '@/lib/app-api/portada'
 import { TAG_NOTAS } from '@/lib/app-api/nota'
 import { redirect } from 'next/navigation'
+import { after } from 'next/server'
+import { enviarPushNota } from '@/lib/app-api/push'
 
 // Helper: fetch directo al REST API de Supabase usando el JWT del usuario
 // Usa NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (confirmado correcto) + JWT de sesión
@@ -130,6 +132,9 @@ export async function saveArticle(formData: FormData) {
     author_id: user.id,
   }
 
+  // ¿Estaba publicada antes? Solo se avisa a la app al pasar a publicada.
+  const estabaPublicada = id ? await estaPublicada(session.access_token, id) : false
+
   // Llamada directa al REST API con el JWT del usuario autenticado
   let result: { ok: boolean; error?: string }
   if (id) {
@@ -139,6 +144,10 @@ export async function saveArticle(formData: FormData) {
   }
 
   if (!result.ok) return { error: result.error ?? 'Error al guardar el artículo' }
+
+  if (is_published && !estabaPublicada) {
+    after(() => enviarPushNota({ slug, titulo: title, seccion: category_slug }))
+  }
 
   revalidatePath('/')
   revalidateTag(TAG_PORTADA, 'max')
@@ -169,6 +178,39 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
   return { redirect: '/admin/articulos' }
 }
 
+// Lee si una nota ya está publicada (con el JWT del usuario, respeta RLS).
+async function estaPublicada(accessToken: string, id: string): Promise<boolean> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !anonKey) return false
+  try {
+    const res = await fetch(`${url}/rest/v1/articles?id=eq.${id}&select=is_published,title,slug,category_slug`, {
+      headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    })
+    const filas = (await res.json()) as { is_published?: boolean }[]
+    return !!filas?.[0]?.is_published
+  } catch {
+    return false
+  }
+}
+
+async function leerParaPush(accessToken: string, id: string): Promise<{ slug: string; titulo: string; seccion: string } | null> {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  if (!url || !anonKey) return null
+  try {
+    const res = await fetch(`${url}/rest/v1/articles?id=eq.${id}&select=title,slug,category_slug`, {
+      headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` },
+      cache: 'no-store',
+    })
+    const f = ((await res.json()) as { title: string; slug: string; category_slug: string }[])?.[0]
+    return f ? { slug: f.slug, titulo: f.title, seccion: f.category_slug } : null
+  } catch {
+    return null
+  }
+}
+
 export async function togglePublish(id: string, currentState: boolean): Promise<void> {
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -183,6 +225,11 @@ export async function togglePublish(id: string, currentState: boolean): Promise<
   if (!result.ok) {
     console.error('[togglePublish]', result.error)
     return
+  }
+  // Al pasar a publicada, aviso push a la app.
+  if (!currentState) {
+    const nota = await leerParaPush(session.access_token, id)
+    if (nota) after(() => enviarPushNota(nota))
   }
   revalidatePath('/')
   revalidateTag(TAG_PORTADA, 'max')
