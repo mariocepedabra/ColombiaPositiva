@@ -4,6 +4,7 @@ import { getAllAds } from '@/lib/admin-data'
 import PautasManager from '@/components/admin/PautasManager'
 import AdPriceEditor from '@/components/admin/AdPriceEditor'
 import { getPricing } from '@/lib/pricing'
+import { getAdStats } from '@/lib/app-api/pautaStats'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +22,7 @@ export default async function PautasPage() {
 
   if (myRole !== 'admin') redirect('/admin')
 
-  const [ads, pricing] = await Promise.all([getAllAds(), getPricing()])
+  const [ads, pricing, stats] = await Promise.all([getAllAds(), getPricing(), getAdStats()])
 
   return (
     <div>
@@ -30,7 +31,7 @@ export default async function PautasPage() {
         <p className="font-sans text-sm text-gris-600 mt-0.5">{ads.length} solicitudes de anuncio</p>
       </div>
       <AdPriceEditor initialPerDay={pricing.adPerDay} />
-      <PautasManager ads={ads} />
+      <PautasManager ads={ads} stats={stats} />
     </div>
   )
 }

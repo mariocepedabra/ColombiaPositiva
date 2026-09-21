@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 3
+export const VERSION_CONTRATO = 4
 
 export type SlugSeccion =
   | 'personajes'
@@ -189,4 +189,21 @@ export type Cuenta = {
   anunciante: { pautas: number; pagadas: number; activas: number } | null
   /** Puede copiar el texto de las notas (admin o suscripción activa). */
   puedeCopiar: boolean
+}
+
+// ---- Hito 6: videos y eventos de pauta ----
+
+/** Respuesta de GET /api/app/videos: todos los videos activos, más recientes primero. */
+export type ListaVideos = {
+  generadoEn: string
+  redes: Record<RedSocial, boolean>
+  videos: VideoResumen[]
+}
+
+export type TipoEventoPauta = 'impresion' | 'clic'
+
+/** Cuerpo de POST /api/app/pauta/eventos (lote). */
+export type LoteEventosPauta = {
+  plataforma: 'ios' | 'android'
+  eventos: { anuncioId: string; zona: string; tipo: TipoEventoPauta }[]
 }

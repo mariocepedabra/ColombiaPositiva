@@ -10,3 +10,7 @@ export function articleUrl(slug: string): string {
 export function cardImageUrl(slug: string): string {
   return `${SITE_URL}/api/tarjeta/${encodeURIComponent(slug)}`
 }
+
+// Correo público del medio (confirmado por Mario, sep-2026). Se puede cambiar
+// sin tocar código con la variable CONTACT_EMAIL en Vercel.
+export const CONTACT_EMAIL = process.env.CONTACT_EMAIL?.trim() || 'director@colombiapositiva.com'

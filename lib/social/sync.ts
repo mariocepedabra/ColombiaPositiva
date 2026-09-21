@@ -311,3 +311,42 @@ export async function runSocialSync(): Promise<SyncReport> {
 
   return report
 }
+
+// ── Sincronización "perezosa" ──────────────────────────────────────
+// El cron de Vercel es el camino principal, pero si no está configurado (o
+// falla), esto garantiza que igual corra una vez al día: se llama con
+// after() desde la portada web y desde /api/app/home, y solo trabaja cuando
+// la última corrida tiene más de MAX_EDAD_HORAS.
+
+const MAX_EDAD_HORAS = 20
+// Una corrida sin terminar más reciente que esto se considera "en curso".
+const EN_CURSO_MIN = 10
+
+export async function runSocialSyncIfStale(): Promise<SyncReport | null> {
+  // Durante `next build` no hay que tocar la base de datos.
+  if (process.env.NEXT_PHASE === 'phase-production-build') return null
+  try {
+    const admin = createAdminClient()
+    const { data, error } = await admin
+      .from('social_sync_runs')
+      .select('started_at,finished_at')
+      .order('started_at', { ascending: false })
+      .limit(1)
+    // Sin tabla (migración pendiente) no se puede sincronizar.
+    if (error) return null
+
+    const ultima = (data ?? [])[0] as { started_at: string; finished_at: string | null } | undefined
+    if (ultima) {
+      const edadMs = Date.now() - new Date(ultima.started_at).getTime()
+      if (edadMs < MAX_EDAD_HORAS * 3_600_000) return null
+      if (!ultima.finished_at && edadMs < EN_CURSO_MIN * 60_000) return null
+    }
+
+    const report = await runSocialSync()
+    console.log('[sync perezosa]', JSON.stringify({ ok: report.ok, imported: report.imported, updated: report.updated }))
+    return report
+  } catch (err) {
+    console.error('[sync perezosa]', err instanceof Error ? err.message : err)
+    return null
+  }
+}

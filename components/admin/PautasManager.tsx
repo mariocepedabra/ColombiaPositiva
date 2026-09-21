@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { AD_ZONES, zoneLabel, type Ad } from '@/lib/ads'
+import type { AdStats } from '@/lib/app-api/pautaStats'
 import {
   approveAd, setAdStatus, togglePaid, deleteAd, setAdZones,
 } from '@/app/admin/ads-actions'
@@ -17,7 +18,7 @@ const STATUS_COLOR: Record<string, string> = {
   rechazado: 'bg-red-100 text-red-700',
 }
 
-export default function PautasManager({ ads }: { ads: Ad[] }) {
+export default function PautasManager({ ads, stats = {} }: { ads: Ad[]; stats?: Record<string, AdStats> }) {
   if (ads.length === 0) {
     return (
       <div className="bg-white border border-gris-200 p-12 text-center">
@@ -30,12 +31,12 @@ export default function PautasManager({ ads }: { ads: Ad[] }) {
   }
   return (
     <div className="space-y-4">
-      {ads.map((ad) => <AdRow key={ad.id} ad={ad} />)}
+      {ads.map((ad) => <AdRow key={ad.id} ad={ad} stats={stats[ad.id]} />)}
     </div>
   )
 }
 
-function AdRow({ ad }: { ad: Ad }) {
+function AdRow({ ad, stats }: { ad: Ad; stats?: AdStats }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [zones, setZones] = useState<string[]>(ad.zones ?? [])
@@ -98,6 +99,17 @@ function AdRow({ ad }: { ad: Ad }) {
             {ad.target_url && <a href={ad.target_url} target="_blank" rel="noreferrer" className="text-verde hover:underline">Enlace ↗</a>}
             {ad.end_date && <span>Vence: {new Date(ad.end_date).toLocaleDateString('es-CO')}</span>}
           </div>
+
+          {/* Alcance en la app móvil (impresiones y clics, agregados) */}
+          {stats && (
+            <div className="flex flex-wrap gap-x-5 gap-y-1 mt-2 font-sans text-xs text-gris-600" title="Contado en la app móvil; no identifica a nadie">
+              <span className="font-700 uppercase tracking-wider text-gris-400">App:</span>
+              <span><strong>{stats.impresiones.toLocaleString('es-CO')}</strong> impresiones</span>
+              <span><strong>{stats.clics.toLocaleString('es-CO')}</strong> clics</span>
+              <span>7 días: <strong>{stats.impresiones7d.toLocaleString('es-CO')}</strong> / <strong>{stats.clics7d.toLocaleString('es-CO')}</strong></span>
+              {stats.impresiones > 0 && <span>CTR <strong>{((stats.clics / stats.impresiones) * 100).toFixed(2)} %</strong></span>}
+            </div>
+          )}
 
           {/* Zonas */}
           <div className="mt-3 border-t border-gris-100 pt-3">

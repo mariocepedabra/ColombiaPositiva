@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { after } from 'next/server'
 import BreakingTicker from '@/components/BreakingTicker'
 import VideoSection from '@/components/VideoSection'
 import HeroSection from '@/components/HeroSection'
@@ -7,14 +8,21 @@ import MostReadSection from '@/components/MostReadSection'
 import AdZone from '@/components/AdZone'
 import { categories, breakingNewsFallback } from '@/lib/data'
 import { getRecentArticles, getArticlesByCategory } from '@/lib/articles'
+import { runSocialSyncIfStale } from '@/lib/social/sync'
 
 export const revalidate = 60
+// Deja tiempo a la sincronización perezosa de TikTok (corre tras responder).
+export const maxDuration = 60
 
 export const metadata: Metadata = {
   title: 'Solo Noticias Positivas',
 }
 
 export default async function HomePage() {
+  // Respaldo del cron: si la última sincronización de redes tiene más de
+  // 20 h, se lanza en segundo plano al regenerar la portada (cada 60 s).
+  after(() => runSocialSyncIfStale())
+
   // Las últimas 10 notas rotan en el centro; las últimas 4 se fijan en los lados
   const [recentArticles, ...categoryArticles] = await Promise.all([
     getRecentArticles(10),

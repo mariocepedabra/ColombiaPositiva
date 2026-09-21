@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { CONTACT_EMAIL } from '@/lib/site'
 
 // Política de privacidad y términos de uso de la web y de la app móvil.
 // Las tiendas (Apple y Google) exigen esta URL pública. El texto lo revisa
@@ -25,7 +26,7 @@ function P({ children }: { children: React.ReactNode }) {
 }
 
 export default function PrivacidadPage() {
-  const correo = process.env.CONTACT_EMAIL?.trim()
+  const correo = CONTACT_EMAIL
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">

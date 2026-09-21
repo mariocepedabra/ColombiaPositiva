@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { CONTACT_EMAIL } from '@/lib/site'
 
 // Página de contacto. Las tiendas exigen una URL pública de contacto para la
 // app. El correo se muestra solo si está configurado en Vercel (CONTACT_EMAIL).
@@ -25,7 +26,7 @@ function Tarjeta({ titulo, children }: { titulo: string; children: React.ReactNo
 }
 
 export default function ContactoPage() {
-  const correo = process.env.CONTACT_EMAIL?.trim()
+  const correo = CONTACT_EMAIL
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
