@@ -1,7 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
+import { TAG_PORTADA } from '@/lib/app-api/portada'
 import { redirect } from 'next/navigation'
 
 // Helper: fetch directo al REST API de Supabase usando el JWT del usuario
@@ -139,6 +140,7 @@ export async function saveArticle(formData: FormData) {
   if (!result.ok) return { error: result.error ?? 'Error al guardar el artículo' }
 
   revalidatePath('/')
+  revalidateTag(TAG_PORTADA, 'max')
   revalidatePath(`/categoria/${category_slug}`)
   if (id) revalidatePath(`/articulo/${slug}`)
 
@@ -157,6 +159,7 @@ export async function deleteArticle(id: string, categorySlug: string, slug: stri
   }
 
   revalidatePath('/')
+  revalidateTag(TAG_PORTADA, 'max')
   revalidatePath(`/categoria/${categorySlug}`)
   revalidatePath(`/articulo/${slug}`)
 
@@ -179,6 +182,7 @@ export async function togglePublish(id: string, currentState: boolean): Promise<
     return
   }
   revalidatePath('/')
+  revalidateTag(TAG_PORTADA, 'max')
   revalidatePath('/admin/articulos')
 }
 
