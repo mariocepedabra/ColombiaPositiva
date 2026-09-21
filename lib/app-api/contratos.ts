@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 4
+export const VERSION_CONTRATO = 5
 
 export type SlugSeccion =
   | 'personajes'
@@ -206,4 +206,39 @@ export type TipoEventoPauta = 'impresion' | 'clic'
 export type LoteEventosPauta = {
   plataforma: 'ios' | 'android'
   eventos: { anuncioId: string; zona: string; tipo: TipoEventoPauta }[]
+}
+
+// ---- Hito 7: columnistas ----
+
+/** Un columnista, derivado de sus notas (no hay tabla de autores). */
+export type ResumenAutor = {
+  /** Nombre tal cual firma (es la clave: GET /api/app/autor/[nombre]). */
+  nombre: string
+  /** Foto de su nota más reciente con foto (URL original; la app usa /api/imagen). */
+  retrato: string | null
+  /** Biografía opcional (app-config/autores.json), o null. */
+  bio: string | null
+  totalNotas: number
+  /** ISO 8601: fecha de su primera nota ("publica desde"). */
+  desde: string
+  ultimaNota: NotaResumen
+}
+
+/** Respuesta de GET /api/app/autores ("Otros columnistas"). */
+export type Columnistas = {
+  generadoEn: string
+  /** El columnista de la nota más leída de la semana (o de siempre, si aún no hay vistas diarias). */
+  masLeido: { periodo: 'semana' | 'historico'; autor: ResumenAutor; nota: NotaResumen } | null
+  /** Quienes firman las últimas columnas, de la más reciente a la más antigua. */
+  autores: ResumenAutor[]
+}
+
+/** Respuesta de GET /api/app/autor/[nombre]?pagina= */
+export type PaginaAutor = {
+  autor: ResumenAutor
+  total: number
+  pagina: number
+  porPagina: number
+  haySiguiente: boolean
+  notas: NotaResumen[]
 }
