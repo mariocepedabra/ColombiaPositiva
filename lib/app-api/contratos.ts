@@ -2,7 +2,7 @@
 // COPIA IDÉNTICA en la app: colombia-positiva-app/src/lib/contratos.ts.
 // Si cambias algo aquí, cámbialo también allá y sube `version`.
 
-export const VERSION_CONTRATO = 7
+export const VERSION_CONTRATO = 8
 
 export type SlugSeccion =
   | 'personajes'
@@ -30,6 +30,17 @@ export type NotaResumen = {
    * La app pide cada tamaño a /api/imagen?url=…&w=…; nunca carga el original.
    */
   imagen: string | null
+}
+
+/** Cómo se movió una nota en el ranking respecto a ayer. */
+export type MovimientoRanking = 'sube' | 'baja' | 'igual' | 'nueva'
+
+/** Nota del ranking de más leídas con su movimiento respecto al ranking de ayer. */
+export type NotaRanking = NotaResumen & {
+  /** null cuando no hay ranking de ayer con qué comparar (periodo 'historico'). */
+  movimiento: MovimientoRanking | null
+  /** Puesto que tenía ayer (1 = primero); null si no estaba entre las contadas. */
+  posicionAnterior: number | null
 }
 
 export type Anuncio = {
@@ -78,7 +89,7 @@ export type Portada = {
   masLeidas: {
     /** 'semana' cuando ya hay vistas diarias; 'historico' = contador acumulado (como la web hoy). */
     periodo: 'semana' | 'historico'
-    notas: NotaResumen[]
+    notas: NotaRanking[]
   }
   /** Secciones en el orden de la portada web, cada una con hasta 4 notas. */
   secciones: BloqueSeccion[]
@@ -154,6 +165,9 @@ export type ConteosSecciones = {
 
 /** Cuerpo de POST /api/app/auth/login */
 export type PeticionLogin = { email: string; password: string }
+
+/** Cuerpo de POST /api/app/auth/registro. Crea la cuenta (lector) y devuelve la sesión. */
+export type PeticionRegistro = { email: string; password: string; nombre: string }
 
 /** Cuerpo de POST /api/app/auth/refresh */
 export type PeticionRefresh = { refreshToken: string }

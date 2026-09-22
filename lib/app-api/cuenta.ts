@@ -24,6 +24,34 @@ export async function iniciarSesion(email: string, password: string): Promise<Re
   return { tokens: aTokens(data.session) }
 }
 
+// Crea una cuenta de lector desde la app, igual que authSignUp en la web:
+// usuario confirmado con la clave de servicio (para poder entrar de inmediato)
+// y luego inicio de sesión normal. El rol lo pone la base de datos (lector).
+export async function crearCuenta(email: string, password: string, nombre: string): Promise<ResultadoAuth> {
+  const correo = email.trim().toLowerCase()
+  const nombreLimpio = nombre.trim().slice(0, 80)
+  if (!correo || !password) return { error: 'Ingresa tu correo y contraseña.', estado: 400 }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) return { error: 'Ese correo no parece válido.', estado: 400 }
+  if (password.length < 6) return { error: 'La contraseña debe tener al menos 6 caracteres.', estado: 400 }
+  if (!nombreLimpio) return { error: 'Cuéntanos tu nombre.', estado: 400 }
+
+  const { error } = await createAdminClient().auth.admin.createUser({
+    email: correo,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: nombreLimpio },
+  })
+  if (error) {
+    if (/already.*registered|exists/i.test(error.message)) {
+      return { error: 'Ya existe una cuenta con ese correo. Inicia sesión.', estado: 409 }
+    }
+    return { error: 'No se pudo crear la cuenta. Inténtalo de nuevo.', estado: 502 }
+  }
+  const sesion = await iniciarSesion(correo, password)
+  if ('error' in sesion) return { error: 'Cuenta creada, pero no se pudo iniciar sesión. Entra con tu correo.', estado: 502 }
+  return sesion
+}
+
 export async function renovarSesion(refreshToken: string): Promise<ResultadoAuth> {
   if (!refreshToken) return { error: 'Falta el token de renovación.', estado: 400 }
   const { data, error } = await createAnonClient().auth.refreshSession({ refresh_token: refreshToken })

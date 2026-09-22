@@ -4,7 +4,7 @@ import type { Ad } from '@/lib/ads'
 import { categories, breakingNewsFallback } from '@/lib/data'
 import { CONTACT_EMAIL, SITE_URL } from '@/lib/site'
 import { createAnonClient } from '@/lib/supabase/anon'
-import { VERSION_CONTRATO, type Anuncio, type BloqueSeccion, type NotaResumen, type Portada, type SlugSeccion } from './contratos'
+import { VERSION_CONTRATO, type Anuncio, type BloqueSeccion, type MovimientoRanking, type NotaRanking, type NotaResumen, type Portada, type SlugSeccion } from './contratos'
 import { aNotaResumen, CAMPOS_RESUMEN, type FilaResumen } from './notas'
 import { historiasPortada } from './videos'
 
@@ -63,7 +63,8 @@ async function masLeidas(limite: number): Promise<Portada['masLeidas']> {
   try {
     const { data, error } = await supabase.rpc('top_articles_week', { result_limit: limite })
     if (!error && Array.isArray(data) && data.length >= 3) {
-      return { periodo: 'semana', notas: (data as FilaResumen[]).map(aNotaResumen) }
+      const notas = (data as FilaResumen[]).map(aNotaResumen)
+      return { periodo: 'semana', notas: await conMovimiento(notas) }
     }
   } catch {
     /* sin función todavía */
@@ -75,7 +76,46 @@ async function masLeidas(limite: number): Promise<Portada['masLeidas']> {
     .order('view_count', { ascending: false, nullsFirst: false })
     .order('published_at', { ascending: false })
     .limit(limite)
-  return { periodo: 'historico', notas: ((data ?? []) as FilaResumen[]).map(aNotaResumen) }
+  const notas = ((data ?? []) as FilaResumen[]).map(aNotaResumen)
+  return { periodo: 'historico', notas: notas.map((n) => ({ ...n, movimiento: null, posicionAnterior: null })) }
+}
+
+// Fecha de Bogotá (Colombia no cambia de hora) desplazada `dias` días, como YYYY-MM-DD.
+function diaBogota(dias: number): string {
+  return new Date(Date.now() - 5 * 3_600_000 + dias * 86_400_000).toISOString().slice(0, 10)
+}
+
+// Compara el ranking de hoy con el que había ayer (la misma ventana de 7 días
+// terminando ayer) para pintar ↑ ↓ = o "nueva". Se calcula aquí con las
+// filas diarias, sin otra función SQL. Si algo falla, el ranking sale sin
+// movimientos (nunca rompe la portada).
+async function conMovimiento(notas: NotaResumen[]): Promise<NotaRanking[]> {
+  const sinDatos = notas.map((n) => ({ ...n, movimiento: null, posicionAnterior: null }))
+  try {
+    const { data, error } = await createAnonClient()
+      .from('article_views_daily')
+      .select('slug,day,views')
+      .gte('day', diaBogota(-7))
+      .lte('day', diaBogota(-1))
+      .order('views', { ascending: false })
+      .limit(1000)
+    if (error || !data) return sinDatos
+    const suma = new Map<string, number>()
+    for (const fila of data as { slug: string; day: string; views: number }[]) {
+      suma.set(fila.slug, (suma.get(fila.slug) ?? 0) + Number(fila.views))
+    }
+    if (suma.size === 0) return sinDatos
+    const ayer = [...suma.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([slug]) => slug)
+    return notas.map((n, i) => {
+      const indice = ayer.indexOf(n.slug)
+      const posicionAnterior = indice >= 0 ? indice + 1 : null
+      let movimiento: MovimientoRanking = 'nueva'
+      if (posicionAnterior !== null) movimiento = posicionAnterior > i + 1 ? 'sube' : posicionAnterior < i + 1 ? 'baja' : 'igual'
+      return { ...n, movimiento, posicionAnterior }
+    })
+  } catch {
+    return sinDatos
+  }
 }
 
 // Todos los anuncios activos y vigentes, agrupados por zona (una sola consulta
