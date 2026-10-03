@@ -43,11 +43,17 @@ export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug)
 }
 
+// Las fechas se pintan SIEMPRE en hora de Colombia. Sin `timeZone`, el
+// servidor (Vercel, en UTC) daba el día siguiente a toda nota publicada
+// después de las 7 p. m., y además no coincidía con lo que pinta el navegador.
+const ZONA_COLOMBIA = 'America/Bogota'
+
 export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('es-CO', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: ZONA_COLOMBIA,
   })
 }
 
@@ -55,5 +61,6 @@ export function formatDateShort(dateString: string): string {
   return new Date(dateString).toLocaleDateString('es-CO', {
     month: 'short',
     day: 'numeric',
+    timeZone: ZONA_COLOMBIA,
   })
 }
